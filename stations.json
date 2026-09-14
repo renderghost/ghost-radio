@@ -1,6 +1,7 @@
 [
   { "title": "Ambient Sleeping Pill", "streamUrl": "https://radio.stereoscenic.com/asp-h", "location": "New Jersey, USA" },
   { "title": "Arctic Outpost", "streamUrl": "http://216.126.196.154:4047/stream", "location": "Longyearbyen, Norway" },
+  { "title": "Broken Beats", "streamUrl": "https://brokenbeats.net/stream/aac", "location": "Odessa, Ukraine" },
   { "title": "Cashmere Radio", "streamUrl": "https://cashmereradio.out.airtime.pro/cashmereradio_b", "location": "Berlin, Germany" },
   { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen", "location": "Hamilton, Bermuda" },
   { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8", "location": "Paris, France" },
@@ -9,6 +10,8 @@
   { "title": "Operator Radio", "streamUrl": "https://origin.streamnerd.nl/operator/operator/chunks.m3u8?nimblesessionid=240261694", "location": "Rotterdam, Netherlands" },
   { "title": "Radio Worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio", "location": "Rotterdam, Netherlands" },
   { "title": "Refuge Worldwide", "streamUrl": "https://streaming.radio.co/s3699c5e49/listen", "location": "Berlin, Germany" },
+  { "title": "Rinse Paris", "streamUrl": "https://radio10.pro-fhi.net/flux-trmqtiat/stream", "location": "Paris, France" },
+  { "title": "Seyðisfjörður Community Radio", "streamUrl": "https://seyisfjorur-community-radio.radiocult.fm/stream?_ic2=1789410429826", "location": "Seydisfjordur, Iceland" },
   { "title": "Soma FM", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3", "location": "San Francisco, United States" },
   { "title": "Systrum Sistum", "streamUrl": "https://systrum.net:8443/SSR2", "location": "Brisbane, Australia" },
   { "title": "THF Radio", "streamUrl": "https://stream.thfradio.space/live2.mp3", "location": "Berlin, Germany" },

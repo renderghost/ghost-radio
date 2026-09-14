@@ -13,17 +13,22 @@ const state = {
 
 const audio = document.getElementById("audio");
 
-// Real Web Audio frequency analysis. Most internet radio streams don't send
-// CORS headers, so we try loading with crossOrigin="anonymous" (required for
-// the analyser to read sample data) and silently fall back to a plain load
-// (audio still plays, but the bars stay flat — no data available) if that
-// fails. See loadStream() and handleStreamFailure().
+// Real Web Audio frequency analysis, with a simulated fallback for when it
+// can't get real data: most internet radio streams don't send CORS headers
+// (see loadStream()/handleStreamFailure()), and some platforms (iOS, for any
+// browser — they all run WebKit there) decode HLS (.m3u8) streams natively,
+// bypassing Web Audio entirely. Either way the analyser reads all zeros, so
+// runVisualizerFrame() probes for real data for a bit after each station
+// loads and, if none shows up, switches to a stylised animation instead of
+// leaving the bars dead flat.
 const VISUALIZER = {
   bandCount: 32, // number of bars
   maxHeightPx: 64, // keep in sync with --viz-max-height in styles.css
   minHeightPx: 2, // keep in sync with --viz-min-height in styles.css
   fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
   smoothing: 0.8, // AnalyserNode.smoothingTimeConstant (0-1, higher = gentler)
+  silentFramesBeforeFallback: 90, // ~1.5s at 60fps of all-zero data before giving up on real analysis
+  fakeUpdateIntervalMs: 140, // how often the simulated fallback picks new target bar levels
 };
 
 const STATUS_LABELS = {
@@ -59,6 +64,10 @@ const STALE_EVENT_GRACE_MS = 300;
 
 let visualizerBars = [];
 let visualizerFrame = null;
+let visualizerMode = "idle"; // "idle" | "probing" | "real" | "fake"
+let silentFrameCount = 0;
+let fakeEnergy = 0.6;
+let lastFakeTick = 0;
 let bandRanges = [];
 let audioCtx = null;
 let analyser = null;
@@ -198,9 +207,15 @@ function buildBandRanges(binCount, bandCount) {
 
 function startVisualizer() {
   ensureAudioGraph();
-  if (!analyser) return; // Web Audio unsupported — bars just stay at rest
-  if (audioCtx.state === "suspended") {
+  if (audioCtx && audioCtx.state === "suspended") {
     audioCtx.resume().catch(() => {});
+  }
+  // Only pick a starting mode when there isn't already a deliberate one (set
+  // by play() or handleStreamFailure()) — this function may run again mid-
+  // session (e.g. connecting -> playing) and must never clobber that choice.
+  if (visualizerMode === "idle") {
+    visualizerMode = analyser ? "probing" : "fake";
+    silentFrameCount = 0;
   }
   if (visualizerFrame) return;
   runVisualizerFrame();
@@ -211,26 +226,70 @@ function stopVisualizer() {
     cancelAnimationFrame(visualizerFrame);
     visualizerFrame = null;
   }
-  visualizerBars.forEach((bar) => {
-    bar.style.height = `${VISUALIZER.minHeightPx}px`;
-  });
+  visualizerMode = "idle";
+  visualizerBars.forEach((bar) => setBarHeight(bar, 0));
 }
 
-function runVisualizerFrame() {
+function runVisualizerFrame(timestamp) {
   visualizerFrame = requestAnimationFrame(runVisualizerFrame);
 
-  analyser.getByteFrequencyData(freqData);
+  if (visualizerMode === "probing" || visualizerMode === "real") {
+    analyser.getByteFrequencyData(freqData);
+    let total = 0;
+    for (let i = 0; i < freqData.length; i++) total += freqData[i];
 
+    if (total > 0) {
+      visualizerMode = "real";
+      silentFrameCount = 0;
+      renderRealLevels();
+      return;
+    }
+
+    silentFrameCount += 1;
+    if (silentFrameCount < VISUALIZER.silentFramesBeforeFallback) return; // hold at rest while probing
+    visualizerMode = "fake"; // real analyser gave us nothing (CORS-tainted, HLS on iOS, etc.)
+  }
+
+  // Fake mode only picks new random targets periodically; the CSS transition
+  // on each bar handles the gentle glide between them every frame in between.
+  const now = timestamp ?? performance.now();
+  if (now - lastFakeTick >= VISUALIZER.fakeUpdateIntervalMs) {
+    lastFakeTick = now;
+    tickFakeVisualizer();
+  }
+}
+
+function renderRealLevels() {
   visualizerBars.forEach((bar, i) => {
     const [start, end] = bandRanges[i];
     let sum = 0;
     for (let b = start; b < end; b++) sum += freqData[b];
-    const level = sum / (end - start) / 255; // 0..1
-    const px = Math.round(
-      VISUALIZER.minHeightPx + level * (VISUALIZER.maxHeightPx - VISUALIZER.minHeightPx)
-    );
-    bar.style.height = `${px}px`;
+    setBarHeight(bar, sum / (end - start) / 255);
   });
+}
+
+// Simulated fallback: a dome-shaped curve across bands (more energy in the
+// middle, tapering at the edges) plus a slow random-walk overall level, so it
+// reads as a plausible EQ rather than random noise.
+function tickFakeVisualizer() {
+  fakeEnergy = clamp(fakeEnergy + (Math.random() - 0.5) * 0.3, 0.3, 1);
+  const n = visualizerBars.length;
+  visualizerBars.forEach((bar, i) => {
+    const dome = Math.sin(((i + 0.5) / n) * Math.PI);
+    const jitter = 0.55 + Math.random() * 0.45;
+    setBarHeight(bar, clamp(dome * fakeEnergy * jitter, 0, 1));
+  });
+}
+
+function setBarHeight(bar, level) {
+  const px = Math.round(
+    VISUALIZER.minHeightPx + clamp(level, 0, 1) * (VISUALIZER.maxHeightPx - VISUALIZER.minHeightPx)
+  );
+  bar.style.height = `${px}px`;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function togglePlay() {
@@ -243,6 +302,12 @@ function play() {
   if (!station) return;
   state.playing = true;
   usingCors = true;
+  // A new station gets a fresh shot at real analysis, even if the last one
+  // fell back to the simulated animation.
+  if (analyser) {
+    visualizerMode = "probing";
+    silentFrameCount = 0;
+  }
   loadStream(station.streamUrl);
   setStatus("connecting");
 }
@@ -285,8 +350,11 @@ function handleStreamFailure(url) {
   clearTimeout(connectTimeoutId);
   if (usingCors) {
     // Most streams don't send CORS headers. Retry once without it so
-    // playback can still succeed — the visualizer just won't have data.
+    // playback can still succeed. Without CORS the analyser is guaranteed to
+    // read silence, so skip straight to the simulated fallback — no point
+    // burning another probe window on a result we already know.
     usingCors = false;
+    if (analyser) visualizerMode = "fake";
     loadStream(url);
     return;
   }
