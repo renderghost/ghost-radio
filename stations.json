@@ -1,12 +1,12 @@
 [
-  { "title": "Groove Salad", "streamUrl": "https://ice1.somafm.com/groovesalad-256-mp3" },
-  { "title": "Drone Zone", "streamUrl": "https://ice1.somafm.com/dronezone-256-mp3" },
-  { "title": "Beat Blender", "streamUrl": "https://ice1.somafm.com/beatblender-256-mp3" },
-  { "title": "Deep Space One", "streamUrl": "https://ice1.somafm.com/deepspaceone-256-mp3" },
-  { "title": "Secret Agent", "streamUrl": "https://ice1.somafm.com/secretagent-256-mp3" },
-  { "title": "Space Station Soma", "streamUrl": "https://ice1.somafm.com/spacestation-256-mp3" },
-  { "title": "Indie Pop Rocks", "streamUrl": "https://ice1.somafm.com/indiepop-128-mp3" },
-  { "title": "Lush", "streamUrl": "https://ice1.somafm.com/lush-128-mp3" },
-  { "title": "Fluid", "streamUrl": "https://ice1.somafm.com/fluid-256-mp3" },
-  { "title": "Left Coast 70s", "streamUrl": "https://ice1.somafm.com/seventies-128-mp3" }
+  { "title": "Ambient Sleeping Pill", "streamUrl": "https://radio.stereoscenic.com/asp-h" },
+  { "title": "Arctic Outpost", "streamUrl": "http://216.126.196.154:4047/stream" },
+  { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen" },
+  { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8" },
+  { "title": "Modular", "streamUrl": "https://broadcast.modular-station.com/listen/modular_station/radio.aac" },
+  { "title": "Noods Radio", "streamUrl": "https://noods-radio.radiocult.fm/stream" },
+  { "title": "Radio Worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio" },
+  { "title": "Soma FM - Dark Zone", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3" },
+  { "title": "Systrum Sistum - SSR2", "streamUrl": "https://systrum.net:8443/SSR2" }
 ]
+
