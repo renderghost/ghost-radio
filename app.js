@@ -17,7 +17,7 @@ const audio = document.getElementById("audio");
 // CORS headers, so we try loading with crossOrigin="anonymous" (required for
 // the analyser to read sample data) and silently fall back to a plain load
 // (audio still plays, but the bars stay flat — no data available) if that
-// fails. See play()/loadStream() and the "error" listener in bindEvents().
+// fails. See loadStream() and handleStreamFailure().
 const VISUALIZER = {
   bandCount: 32, // number of bars
   maxHeightPx: 64, // keep in sync with --viz-max-height in styles.css
@@ -45,6 +45,18 @@ const els = {
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
 
+const CONNECT_TIMEOUT_MS = 15000; // give up on a silently-stuck "connecting" stream after this long
+
+// Reassigning `audio.src` mid-stream can make the *previous*, now-abandoned
+// live stream report a trailing "error"/"stalled" after the new one has
+// already started loading (a known quirk with indefinite Icecast/SHOUTcast
+// streams, worse on Safari/iOS) — and since it's the same shared <audio>
+// element, whichever listener is currently attached receives it, with no way
+// to tell which stream it was really about. An error/stalled event arriving
+// this soon after starting a load is almost certainly that stale echo, not a
+// real failure of the new one, so we ignore it.
+const STALE_EVENT_GRACE_MS = 300;
+
 let visualizerBars = [];
 let visualizerFrame = null;
 let bandRanges = [];
@@ -52,6 +64,9 @@ let audioCtx = null;
 let analyser = null;
 let freqData = null;
 let usingCors = true;
+let currentLoadController = null; // detaches the previous load's listeners the instant a new one starts
+let connectTimeoutId = null;
+let loadStartedAt = 0;
 
 init();
 
@@ -96,22 +111,6 @@ function bindEvents() {
   els.themeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
-
-  audio.addEventListener("waiting", () => setStatus("connecting"));
-  audio.addEventListener("playing", () => setStatus("playing"));
-  audio.addEventListener("error", () => {
-    const station = state.stations[state.currentIndex];
-    if (usingCors && station && state.playing) {
-      // The CORS-enabled load failed (most streams don't send CORS headers).
-      // Retry once without it — playback works, but the visualizer goes flat.
-      usingCors = false;
-      loadStream(station.streamUrl);
-      return;
-    }
-    state.playing = false;
-    setStatus("error");
-  });
-  audio.addEventListener("stalled", () => setStatus("error"));
 }
 
 function bindMediaSession() {
@@ -135,6 +134,7 @@ function bindMediaSession() {
 
 function bindKeyboardShortcuts() {
   document.addEventListener("keydown", (e) => {
+    if (e.repeat) return; // ignore OS key-repeat from a held key
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [contenteditable]")) return;
 
@@ -198,7 +198,8 @@ function buildBandRanges(binCount, bandCount) {
 
 function startVisualizer() {
   ensureAudioGraph();
-  if (audioCtx && audioCtx.state === "suspended") {
+  if (!analyser) return; // Web Audio unsupported — bars just stay at rest
+  if (audioCtx.state === "suspended") {
     audioCtx.resume().catch(() => {});
   }
   if (visualizerFrame) return;
@@ -217,7 +218,6 @@ function stopVisualizer() {
 
 function runVisualizerFrame() {
   visualizerFrame = requestAnimationFrame(runVisualizerFrame);
-  if (!analyser) return; // Web Audio unsupported in this browser
 
   analyser.getByteFrequencyData(freqData);
 
@@ -248,16 +248,56 @@ function play() {
 }
 
 function loadStream(url) {
+  // Detach the previous load's listeners/timeout *before* starting this one,
+  // so a stalled/aborted old connection can never fire a stale event against
+  // whatever station happens to be current by the time it lands (the bug
+  // behind "errors when I press next/prev while a station is still loading").
+  currentLoadController?.abort();
+  clearTimeout(connectTimeoutId);
+
+  const controller = new AbortController();
+  currentLoadController = controller;
+  const { signal } = controller;
+  loadStartedAt = Date.now();
+
   // crossOrigin must be set before .src for it to take effect on this load.
   audio.crossOrigin = usingCors ? "anonymous" : null;
   audio.src = url;
   audio.load();
+
+  audio.addEventListener("waiting", () => setStatus("connecting"), { signal });
+  audio.addEventListener("playing", () => {
+    clearTimeout(connectTimeoutId);
+    setStatus("playing");
+  }, { signal });
+  audio.addEventListener("error", () => handleStreamFailure(url), { signal });
+  audio.addEventListener("stalled", () => handleStreamFailure(url), { signal });
+
+  connectTimeoutId = setTimeout(() => handleStreamFailure(url), CONNECT_TIMEOUT_MS);
+
   audio.play().catch(() => {
-    // Real failures are handled by the "error"/"stalled" listeners below.
+    // Real failures are surfaced via the "error"/"stalled" listeners above.
   });
 }
 
+function handleStreamFailure(url) {
+  if (Date.now() - loadStartedAt < STALE_EVENT_GRACE_MS) return; // likely a stale echo — see STALE_EVENT_GRACE_MS above
+  clearTimeout(connectTimeoutId);
+  if (usingCors) {
+    // Most streams don't send CORS headers. Retry once without it so
+    // playback can still succeed — the visualizer just won't have data.
+    usingCors = false;
+    loadStream(url);
+    return;
+  }
+  state.playing = false;
+  setStatus("error");
+}
+
 function stop() {
+  currentLoadController?.abort();
+  currentLoadController = null;
+  clearTimeout(connectTimeoutId);
   state.playing = false;
   audio.pause();
   audio.removeAttribute("src");
