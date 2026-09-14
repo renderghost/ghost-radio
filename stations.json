@@ -1,12 +1,16 @@
 [
   { "title": "Ambient Sleeping Pill", "streamUrl": "https://radio.stereoscenic.com/asp-h", "location": "New Jersey, USA" },
   { "title": "Arctic Outpost", "streamUrl": "http://216.126.196.154:4047/stream", "location": "Longyearbyen, Norway" },
+  { "title": "Cashmere Radio", "streamUrl": "https://cashmereradio.out.airtime.pro/cashmereradio_b", "location": "Berlin, Germany" },
   { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen", "location": "Hamilton, Bermuda" },
   { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8", "location": "Paris, France" },
   { "title": "Modular", "streamUrl": "https://broadcast.modular-station.com/listen/modular_station/radio.aac", "location": "Paris, France" },
   { "title": "Noods Radio", "streamUrl": "https://noods-radio.radiocult.fm/stream", "location": "Bristol, United Kingdom" },
   { "title": "Radio Worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio", "location": "Rotterdam, Netherlands" },
-  { "title": "Soma FM - Dark Zone", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3", "location": "San Francisco, United States" },
-  { "title": "Systrum Sistum - SSR2", "streamUrl": "https://systrum.net:8443/SSR2", "location": "Brisbane, Australia" }
+  { "title": "Refuge Worldwide", "streamUrl": "https://streaming.radio.co/s3699c5e49/listen", "location": "Berlin, Germany" },
+  { "title": "Radio Woltersdorf", "streamUrl": "https://streaming.fueralle.org/fr-bb", "location": "Woltersdorf, Germany" },
+  { "title": "Soma FM", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3", "location": "San Francisco, United States" },
+  { "title": "Systrum Sistum", "streamUrl": "https://systrum.net:8443/SSR2", "location": "Brisbane, Australia" },
+  { "title": "THF Radio", "streamUrl": "https://stream.thfradio.space/live2.mp3", "location": "Berlin, Germany" }
 ]
 

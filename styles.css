@@ -16,7 +16,7 @@
 
 html[data-theme="dark"] {
   --bg: #111110;
-  --card-bg: #1a1a18;
+  --card-bg: hsl(60, 4%, 16%);
   --text: #ededea;
   --text-muted: #7a7973;
   --bg-display: #111110;
@@ -37,7 +37,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 12px;
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -55,12 +55,11 @@ button {
     "speaker"
     "display"
     "transport"
-    "dials"
     "theme";
-  gap: 8px;
+  gap: 16px;
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 24px;
   transition: background-color .2s ease, border-color .2s ease;
 }
@@ -79,26 +78,57 @@ button {
 .display {
   grid-area: display;
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   min-width: 0;
   padding: 16px;
   background: var(--bg-display);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-sm);
+}
+
+.display__status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.display__status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.display__counter {
+  flex: none;
+  font-size: .875rem;
+  color: var(--text-muted);
 }
 
 .display__status {
   flex: none;
-  width: 25px;
-  height: 25px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--text-muted);
+}
+
+.display__status-label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 body[data-status="playing"] .display__status,
 body[data-status="connecting"] .display__status {
   background: var(--accent);
+}
+
+body[data-status="playing"] .display__status-label,
+body[data-status="connecting"] .display__status-label {
+  color: var(--accent);
 }
 
 body[data-status="connecting"] .display__status {
@@ -112,11 +142,10 @@ body[data-status="connecting"] .display__status {
 
 .display__text {
   min-width: 0;
-  flex: 1;
 }
 
 .display__name {
-  font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+  font-size: clamp(1.5rem, 4.2vw, 1.25rem);
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -130,7 +159,7 @@ body[data-status="connecting"] .display__status {
 .display__meta {
   min-height: 1.25em;
   margin-top: 4px;
-  font-size: .9375rem;
+  font-size: 1rem;
   color: var(--text-muted);
 }
 
@@ -185,41 +214,22 @@ body[data-status="connecting"] .display__status {
   color: var(--accent);
 }
 
-/* Preset dials */
-.dials {
-  grid-area: dials;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-}
-
-.btn--dial {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .9rem;
-  font-weight: 600;
-}
-
-.btn--dial.is-active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
 /* Theme toggle */
 .theme-toggle {
   grid-area: theme;
   display: flex;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 4px;
 }
 
 .btn--theme {
-  flex: 1;
+  flex: none;
+  width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
 .btn--theme.is-active {
@@ -230,10 +240,5 @@ body[data-status="connecting"] .display__status {
 @media (max-width: 360px) {
   .radio {
     padding: 20px;
-    gap: 18px;
-  }
-  .dials {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
   }
 }

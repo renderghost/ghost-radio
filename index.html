@@ -9,28 +9,32 @@
 <body>
 <main class="radio" id="radio">
 
-  <!-- Speaker grille dot grid: 16 columns x 4 rows, 6px gap between dots.
+  <!-- Speaker grille dot grid: 16 columns x 6 rows, 6px gap between dots.
        To change: edit COLS/ROWS/GAP below, keep viewBox = COLS*CELL x ROWS*CELL,
        and circle r = (CELL-GAP)/2 so the dot fills the cell. -->
-  <svg class="speaker" aria-hidden="true" viewBox="0 0 480 120">
+  <svg class="speaker" aria-hidden="true" viewBox="0 0 480 180">
     <defs>
-      <!-- COLS=16 ROWS=4 GAP=6 CELL=30 -->
+      <!-- COLS=16 ROWS=6 GAP=6 CELL=30 -->
       <pattern id="speaker-grille" width="30" height="30" patternUnits="userSpaceOnUse">
-        <circle class="speaker__dot" cx="15" cy="15" r="12"></circle>
+        <circle class="speaker__dot" cx="15" cy="15" r="6"></circle>
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill="url(#speaker-grille)"></rect>
   </svg>
 
   <section class="display">
-    <span class="display__status" id="status-dot" aria-hidden="true"></span>
+    <div class="display__status-row">
+      <div class="display__status-group">
+        <span class="display__status" id="status-dot" aria-hidden="true"></span>
+        <span class="display__status-label" id="status-label">Off Air</span>
+      </div>
+      <span class="display__counter" id="station-counter"></span>
+    </div>
     <div class="display__text">
       <div class="display__name" id="station-name">— NO SIGNAL —</div>
       <div class="display__meta" id="display-meta"></div>
     </div>
   </section>
-
-  <section class="dials" id="dials" aria-label="Station presets"></section>
 
   <section class="transport">
     <button class="btn btn--transport" id="btn-prev" type="button" aria-label="Previous station">

@@ -3,8 +3,6 @@ const STORAGE_KEYS = {
   index: "ghost-radio:index",
 };
 
-const MAX_STATIONS = 10;
-
 const state = {
   stations: [],
   currentIndex: 0,
@@ -15,13 +13,21 @@ const state = {
 
 const audio = document.getElementById("audio");
 
+const STATUS_LABELS = {
+  idle: "Off Air",
+  connecting: "Connecting…",
+  playing: "On Air",
+  error: "Signal Lost",
+};
+
 const els = {
+  statusLabel: document.getElementById("status-label"),
+  stationCounter: document.getElementById("station-counter"),
   stationName: document.getElementById("station-name"),
   displayMeta: document.getElementById("display-meta"),
   btnPlay: document.getElementById("btn-play"),
   btnPrev: document.getElementById("btn-prev"),
   btnNext: document.getElementById("btn-next"),
-  dials: document.getElementById("dials"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
 
@@ -41,8 +47,9 @@ async function init() {
     state.currentIndex = savedIndex;
   }
 
-  buildDials();
   bindEvents();
+  bindMediaSession();
+  bindKeyboardShortcuts();
   render();
 }
 
@@ -52,9 +59,7 @@ async function loadStations() {
     if (!res.ok) throw new Error("bad response");
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error("not an array");
-    return data
-      .filter((s) => s && typeof s.title === "string" && typeof s.streamUrl === "string")
-      .slice(0, MAX_STATIONS);
+    return data.filter((s) => s && typeof s.title === "string" && typeof s.streamUrl === "string");
   } catch {
     return [];
   }
@@ -76,6 +81,47 @@ function bindEvents() {
     setStatus("error");
   });
   audio.addEventListener("stalled", () => setStatus("error"));
+}
+
+function bindMediaSession() {
+  if (!("mediaSession" in navigator)) return;
+
+  const handlers = {
+    play: () => { if (!state.playing) play(); },
+    pause: () => { if (state.playing) stop(); },
+    previoustrack: () => changeStation(-1),
+    nexttrack: () => changeStation(1),
+  };
+
+  for (const [action, handler] of Object.entries(handlers)) {
+    try {
+      navigator.mediaSession.setActionHandler(action, handler);
+    } catch {
+      // Action not supported by this browser — skip it.
+    }
+  }
+}
+
+function bindKeyboardShortcuts() {
+  document.addEventListener("keydown", (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [contenteditable]")) return;
+
+    switch (e.code) {
+      case "Space":
+        e.preventDefault();
+        togglePlay();
+        break;
+      case "ArrowLeft":
+        e.preventDefault();
+        changeStation(-1);
+        break;
+      case "ArrowRight":
+        e.preventDefault();
+        changeStation(1);
+        break;
+    }
+  });
 }
 
 function togglePlay() {
@@ -110,31 +156,9 @@ function changeStation(delta) {
   state.playing ? play() : render();
 }
 
-function selectStation(index) {
-  if (!state.stations[index]) return;
-  state.currentIndex = index;
-  localStorage.setItem(STORAGE_KEYS.index, String(state.currentIndex));
-  play();
-}
-
 function setStatus(status) {
   state.status = status;
   render();
-}
-
-function buildDials() {
-  els.dials.innerHTML = "";
-  for (let i = 0; i < MAX_STATIONS; i++) {
-    const station = state.stations[i];
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "btn btn--dial";
-    btn.textContent = String(i + 1);
-    btn.disabled = !station;
-    btn.setAttribute("aria-label", station ? `Play ${station.title}` : `Preset ${i + 1} (empty)`);
-    btn.addEventListener("click", () => selectStation(i));
-    els.dials.appendChild(btn);
-  }
 }
 
 function loadThemePreference() {
@@ -166,8 +190,11 @@ function render() {
   els.stationName.textContent = station ? station.title : "— NO SIGNAL —";
   els.stationName.classList.toggle("is-empty", !station);
 
-  els.displayMeta.textContent =
-    state.status === "error" ? "SIGNAL LOST" : station?.location ?? "";
+  els.displayMeta.textContent = station?.location ?? "";
+  els.statusLabel.textContent = STATUS_LABELS[state.status];
+  els.stationCounter.textContent = hasStations
+    ? `${state.currentIndex + 1} of ${state.stations.length}`
+    : "";
 
   document.body.dataset.status = state.status;
 
@@ -178,13 +205,21 @@ function render() {
     btn.disabled = !hasStations;
   });
 
-  renderDials();
+  updateMediaSessionState(station);
 }
 
-function renderDials() {
-  [...els.dials.children].forEach((btn, i) => {
-    btn.classList.toggle("is-active", i === state.currentIndex && !!state.stations[i]);
-  });
+function updateMediaSessionState(station) {
+  if (!("mediaSession" in navigator)) return;
+
+  navigator.mediaSession.metadata = station
+    ? new MediaMetadata({
+        title: station.title,
+        artist: station.location ?? "",
+        album: "Ghost Radio",
+      })
+    : null;
+
+  navigator.mediaSession.playbackState = state.playing ? "playing" : "paused";
 }
 
 function renderThemeButtons() {
