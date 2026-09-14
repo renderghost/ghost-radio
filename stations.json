@@ -5,6 +5,7 @@
   { "title": "Balla Radio", "streamUrl": "https://usa5.fastcast4u.com/proxy/cameroon?mp=/1&1789411253160", "location": "Yaoundé, Cameroon" },
   { "title": "Broken Beats", "streamUrl": "https://brokenbeats.net/stream/aac", "location": "Odessa, Ukraine" },
   { "title": "Cashmere Radio", "streamUrl": "https://cashmereradio.out.airtime.pro/cashmereradio_b", "location": "Berlin, Germany" },
+  { "title": "Deutschlandfunk", "streamUrl": "https://st01.sslstream.dlf.de/dlf/01/high/aac/stream.aac?aggregator=web", "location": "Berlin, Germany" },
   { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen", "location": "Hamilton, Bermuda" },
   { "title": "Dublin Digital Radio", "streamUrl": "https://dublin-digital-radio.radiocult.fm/stream?nocache=0.2gxn81fckqp", "location": "Dublin, Ireland" },
   { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8", "location": "Paris, France" },
