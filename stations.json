@@ -1,12 +1,12 @@
 [
-  { "title": "Ambient Sleeping Pill", "streamUrl": "https://radio.stereoscenic.com/asp-h" },
-  { "title": "Arctic Outpost", "streamUrl": "http://216.126.196.154:4047/stream" },
-  { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen" },
-  { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8" },
-  { "title": "Modular", "streamUrl": "https://broadcast.modular-station.com/listen/modular_station/radio.aac" },
-  { "title": "Noods Radio", "streamUrl": "https://noods-radio.radiocult.fm/stream" },
-  { "title": "Radio Worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio" },
-  { "title": "Soma FM - Dark Zone", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3" },
-  { "title": "Systrum Sistum - SSR2", "streamUrl": "https://systrum.net:8443/SSR2" }
+  { "title": "Ambient Sleeping Pill", "streamUrl": "https://radio.stereoscenic.com/asp-h", "location": "New Jersey, USA" },
+  { "title": "Arctic Outpost", "streamUrl": "http://216.126.196.154:4047/stream", "location": "Longyearbyen, Norway" },
+  { "title": "Dr. Dick's Dub Shack", "streamUrl": "https://streamer.radio.co/s0635c8b0d/listen", "location": "Hamilton, Bermuda" },
+  { "title": "La Contemporaine", "streamUrl": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8", "location": "Paris, France" },
+  { "title": "Modular", "streamUrl": "https://broadcast.modular-station.com/listen/modular_station/radio.aac", "location": "Paris, France" },
+  { "title": "Noods Radio", "streamUrl": "https://noods-radio.radiocult.fm/stream", "location": "Bristol, United Kingdom" },
+  { "title": "Radio Worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio", "location": "Rotterdam, Netherlands" },
+  { "title": "Soma FM - Dark Zone", "streamUrl": "https://ice5.somafm.com/darkzone-256-mp3", "location": "San Francisco, United States" },
+  { "title": "Systrum Sistum - SSR2", "streamUrl": "https://systrum.net:8443/SSR2", "location": "Brisbane, Australia" }
 ]
 

@@ -21,8 +21,6 @@ const els = {
   btnPlay: document.getElementById("btn-play"),
   btnPrev: document.getElementById("btn-prev"),
   btnNext: document.getElementById("btn-next"),
-  iconPlay: document.getElementById("icon-play"),
-  iconStop: document.getElementById("icon-stop"),
   dials: document.getElementById("dials"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
@@ -168,14 +166,13 @@ function render() {
   els.stationName.textContent = station ? station.title : "— NO SIGNAL —";
   els.stationName.classList.toggle("is-empty", !station);
 
-  els.displayMeta.textContent = state.status === "error" ? "SIGNAL LOST" : "";
+  els.displayMeta.textContent =
+    state.status === "error" ? "SIGNAL LOST" : station?.location ?? "";
 
   document.body.dataset.status = state.status;
 
   els.btnPlay.classList.toggle("is-playing", state.playing);
   els.btnPlay.setAttribute("aria-label", state.playing ? "Stop" : "Play");
-  els.iconPlay.hidden = state.playing;
-  els.iconStop.hidden = !state.playing;
 
   [els.btnPlay, els.btnPrev, els.btnNext].forEach((btn) => {
     btn.disabled = !hasStations;
