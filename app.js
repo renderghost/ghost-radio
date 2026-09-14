@@ -13,6 +13,19 @@ const state = {
 
 const audio = document.getElementById("audio");
 
+// Real Web Audio frequency analysis. Most internet radio streams don't send
+// CORS headers, so we try loading with crossOrigin="anonymous" (required for
+// the analyser to read sample data) and silently fall back to a plain load
+// (audio still plays, but the bars stay flat — no data available) if that
+// fails. See play()/loadStream() and the "error" listener in bindEvents().
+const VISUALIZER = {
+  bandCount: 32, // number of bars
+  maxHeightPx: 64, // keep in sync with --viz-max-height in styles.css
+  minHeightPx: 2, // keep in sync with --viz-min-height in styles.css
+  fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
+  smoothing: 0.8, // AnalyserNode.smoothingTimeConstant (0-1, higher = gentler)
+};
+
 const STATUS_LABELS = {
   idle: "Off Air",
   connecting: "Connecting…",
@@ -28,8 +41,17 @@ const els = {
   btnPlay: document.getElementById("btn-play"),
   btnPrev: document.getElementById("btn-prev"),
   btnNext: document.getElementById("btn-next"),
+  visualizer: document.getElementById("visualizer"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
+
+let visualizerBars = [];
+let visualizerFrame = null;
+let bandRanges = [];
+let audioCtx = null;
+let analyser = null;
+let freqData = null;
+let usingCors = true;
 
 init();
 
@@ -47,6 +69,7 @@ async function init() {
     state.currentIndex = savedIndex;
   }
 
+  buildVisualizer();
   bindEvents();
   bindMediaSession();
   bindKeyboardShortcuts();
@@ -77,6 +100,14 @@ function bindEvents() {
   audio.addEventListener("waiting", () => setStatus("connecting"));
   audio.addEventListener("playing", () => setStatus("playing"));
   audio.addEventListener("error", () => {
+    const station = state.stations[state.currentIndex];
+    if (usingCors && station && state.playing) {
+      // The CORS-enabled load failed (most streams don't send CORS headers).
+      // Retry once without it — playback works, but the visualizer goes flat.
+      usingCors = false;
+      loadStream(station.streamUrl);
+      return;
+    }
     state.playing = false;
     setStatus("error");
   });
@@ -124,6 +155,84 @@ function bindKeyboardShortcuts() {
   });
 }
 
+function buildVisualizer() {
+  els.visualizer.innerHTML = "";
+  visualizerBars = Array.from({ length: VISUALIZER.bandCount }, () => {
+    const bar = document.createElement("span");
+    bar.className = "display__visualizer-bar";
+    els.visualizer.appendChild(bar);
+    return bar;
+  });
+}
+
+function ensureAudioGraph() {
+  if (audioCtx) return;
+  const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextCtor) return;
+
+  audioCtx = new AudioContextCtor();
+  const sourceNode = audioCtx.createMediaElementSource(audio);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = VISUALIZER.fftSize;
+  analyser.smoothingTimeConstant = VISUALIZER.smoothing;
+
+  sourceNode.connect(analyser);
+  analyser.connect(audioCtx.destination); // required, or audio goes silent
+
+  freqData = new Uint8Array(analyser.frequencyBinCount);
+  bandRanges = buildBandRanges(analyser.frequencyBinCount, VISUALIZER.bandCount);
+}
+
+// Groups FFT bins into bandCount bands on a log scale, so low frequencies
+// (which carry most perceptible variation) get more bars than the highs.
+function buildBandRanges(binCount, bandCount) {
+  const maxLog = Math.log10(binCount);
+  const ranges = [];
+  for (let i = 0; i < bandCount; i++) {
+    const start = Math.floor(10 ** ((i / bandCount) * maxLog));
+    const end = Math.floor(10 ** (((i + 1) / bandCount) * maxLog));
+    ranges.push([Math.max(0, start), Math.max(start + 1, end)]);
+  }
+  return ranges;
+}
+
+function startVisualizer() {
+  ensureAudioGraph();
+  if (audioCtx && audioCtx.state === "suspended") {
+    audioCtx.resume().catch(() => {});
+  }
+  if (visualizerFrame) return;
+  runVisualizerFrame();
+}
+
+function stopVisualizer() {
+  if (visualizerFrame) {
+    cancelAnimationFrame(visualizerFrame);
+    visualizerFrame = null;
+  }
+  visualizerBars.forEach((bar) => {
+    bar.style.height = `${VISUALIZER.minHeightPx}px`;
+  });
+}
+
+function runVisualizerFrame() {
+  visualizerFrame = requestAnimationFrame(runVisualizerFrame);
+  if (!analyser) return; // Web Audio unsupported in this browser
+
+  analyser.getByteFrequencyData(freqData);
+
+  visualizerBars.forEach((bar, i) => {
+    const [start, end] = bandRanges[i];
+    let sum = 0;
+    for (let b = start; b < end; b++) sum += freqData[b];
+    const level = sum / (end - start) / 255; // 0..1
+    const px = Math.round(
+      VISUALIZER.minHeightPx + level * (VISUALIZER.maxHeightPx - VISUALIZER.minHeightPx)
+    );
+    bar.style.height = `${px}px`;
+  });
+}
+
 function togglePlay() {
   if (state.stations.length === 0) return;
   state.playing ? stop() : play();
@@ -133,12 +242,19 @@ function play() {
   const station = state.stations[state.currentIndex];
   if (!station) return;
   state.playing = true;
-  audio.src = station.streamUrl;
-  audio.play().catch(() => {
-    state.playing = false;
-    setStatus("error");
-  });
+  usingCors = true;
+  loadStream(station.streamUrl);
   setStatus("connecting");
+}
+
+function loadStream(url) {
+  // crossOrigin must be set before .src for it to take effect on this load.
+  audio.crossOrigin = usingCors ? "anonymous" : null;
+  audio.src = url;
+  audio.load();
+  audio.play().catch(() => {
+    // Real failures are handled by the "error"/"stalled" listeners below.
+  });
 }
 
 function stop() {
@@ -204,6 +320,8 @@ function render() {
   [els.btnPlay, els.btnPrev, els.btnNext].forEach((btn) => {
     btn.disabled = !hasStations;
   });
+
+  state.playing ? startVisualizer() : stopVisualizer();
 
   updateMediaSessionState(station);
 }

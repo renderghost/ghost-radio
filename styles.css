@@ -12,6 +12,14 @@
   --radius: 8px;
   --radius-sm: 4px;
   --radius-lg: 16px;
+
+  /* Visualizer: controls how tall bars can get and how gently they ease
+     between values. --viz-max-height/--viz-min-height are mirrored as
+     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them. */
+  --viz-max-height: 64px;
+  --viz-min-height: 2px;
+  --viz-duration: 260ms;
+  --viz-easing: cubic-bezier(.22, 1, .36, 1);
 }
 
 html[data-theme="dark"] {
@@ -161,6 +169,28 @@ body[data-status="connecting"] .display__status {
   margin-top: 4px;
   font-size: 1rem;
   color: var(--text-muted);
+}
+
+.display__visualizer {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: var(--viz-max-height);
+}
+
+.display__visualizer-bar {
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--viz-min-height);
+  background: var(--text-muted);
+  border-radius: 1px;
+  transition: height var(--viz-duration) var(--viz-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .display__visualizer-bar {
+    transition: none;
+  }
 }
 
 /* Buttons, shared */
