@@ -1,0 +1,240 @@
+:root {
+  --bg: #dedcd7;
+  --card-bg: #f2f1ed;
+  --text: #1c1c1a;
+  --text-muted: #8c8b85;
+  --border: #c7c5be;
+  --dot: #47463f;
+  --btn-bg: #f2f1ed;
+  --btn-bg-hover: #e7e5df;
+  --accent: #ff5a1f;
+  --radius: 10px;
+}
+
+html[data-theme="dark"] {
+  --bg: #111110;
+  --card-bg: #1a1a18;
+  --text: #ededea;
+  --text-muted: #7a7973;
+  --border: #38372f;
+  --dot: #55544a;
+  --btn-bg: #211f1c;
+  --btn-bg-hover: #2a2825;
+  --accent: #ff6a2e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  transition: background-color .2s ease, color .2s ease;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* SVG elements ignore the `hidden` attribute under the default UA
+   stylesheet (that rule only applies in the HTML namespace) */
+svg[hidden] {
+  display: none;
+}
+
+.radio {
+  width: min(420px, 100%);
+  display: grid;
+  grid-template-areas:
+    "speaker"
+    "display"
+    "transport"
+    "dials"
+    "theme";
+  gap: 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+/* Speaker grille — pure CSS dot grid, no DOM */
+.speaker {
+  grid-area: speaker;
+  aspect-ratio: 3 / 1.3;
+  border-radius: 8px;
+  background-image: radial-gradient(circle, var(--dot) 2.6px, transparent 2.8px);
+  background-size: 20px 20px;
+  background-position: 10px 10px;
+}
+
+/* Display */
+.display {
+  grid-area: display;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.display__status {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  background: transparent;
+}
+
+body[data-status="playing"] .display__status,
+body[data-status="connecting"] .display__status {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+body[data-status="connecting"] .display__status {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .25; }
+}
+
+.display__text {
+  min-width: 0;
+  flex: 1;
+}
+
+.display__name {
+  font-size: clamp(1rem, 4.2vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.display__name.is-empty {
+  color: var(--text-muted);
+}
+
+.display__meta {
+  min-height: 1em;
+  margin-top: 2px;
+  font-size: .75rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Buttons, shared */
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--btn-bg);
+  color: var(--text);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--btn-bg-hover);
+}
+
+.btn:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Transport */
+.transport {
+  grid-area: transport;
+  display: flex;
+  gap: 10px;
+}
+
+.btn--transport {
+  flex: 1;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn--play.is-playing {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Preset dials */
+.dials {
+  grid-area: dials;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.btn--dial {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.btn--dial.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Theme toggle */
+.theme-toggle {
+  grid-area: theme;
+  display: flex;
+  gap: 8px;
+}
+
+.btn--theme {
+  flex: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn--theme.is-active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@media (max-width: 360px) {
+  .radio {
+    padding: 20px;
+    gap: 18px;
+  }
+  .dials {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+}
