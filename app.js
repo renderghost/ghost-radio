@@ -440,7 +440,7 @@ function changeStation(delta) {
   state.currentIndex = (state.currentIndex + delta + state.stations.length) % state.stations.length;
   localStorage.setItem(STORAGE_KEYS.index, String(state.currentIndex));
   updateUrl();
-  state.playing ? play() : render();
+  play();
 }
 
 function setStatus(status) {
