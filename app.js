@@ -22,7 +22,7 @@ const audio = document.getElementById("audio");
 // loads and, if none shows up, switches to a stylised animation instead of
 // leaving the bars dead flat.
 const VISUALIZER = {
-  bandCount: 32, // number of bars
+  bandCount: 128, // number of bars
   maxHeightPx: 128, // keep in sync with --viz-max-height in styles.css
   minHeightPx: 2, // keep in sync with --viz-min-height in styles.css
   fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
@@ -33,8 +33,8 @@ const VISUALIZER = {
 
 const STATUS_LABELS = {
   idle: "Off Air",
-  connecting: "Connecting…",
-  playing: "On Air",
+  connecting: "Connecting",
+  playing: "Live",
   error: "Signal Lost",
 };
 
