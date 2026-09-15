@@ -8,31 +8,50 @@
   --dot: #47463f;
   --btn-bg: #f2f1ed;
   --btn-bg-hover: #e7e5df;
-  --accent: #ff5a1f;
-  --radius: 8px;
-  --radius-sm: 4px;
-  --radius-lg: 16px;
-
-  /* Visualizer: controls how tall bars can get and how gently they ease
-     between values. --viz-max-height/--viz-min-height are mirrored as
-     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them. */
-  --viz-max-height: 64px;
-  --viz-min-height: 2px;
-  --viz-duration: 260ms;
-  --viz-easing: cubic-bezier(.22, 1, .36, 1);
+  --accent: #FF713D;
+  --accent-hover: #F35016;
 }
 
 html[data-theme="dark"] {
-  --bg: #111110;
-  --card-bg: hsl(60, 4%, 16%);
-  --text: #ededea;
-  --text-muted: #7a7973;
-  --bg-display: #111110;
-  --border: #38372f;
-  --dot: #111110;
-  --btn-bg: #211f1c;
-  --btn-bg-hover: #2a2825;
-  --accent: #ff6a2e;
+  --bg: #12100F;
+  --card-bg: #1E1B1A;
+  --text: #EDEBEA;
+  --text-muted: #685E5A;
+  --bg-display: #12100F;
+  --border: hsl(16, 7%, 20%);
+  --dot: #685E5A;
+  --btn-bg: #2C2726;
+  --btn-bg-hover: #37312F;
+  --accent: #F35016;
+  --accent-hover: #FF713D;
+}
+
+:root {
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-base: 8px;
+  --radius-lg: 16px;
+}
+
+:root {
+  /* Spacing scale — use these for gap/padding/margin instead of hardcoding px. */
+  --space-zero: 0px;
+  --space-px: 1px;
+  --space-sm: 4px;
+  --space-base: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  }
+
+:root {
+  /* Visualizer: controls how tall bars can get and how gently they ease
+     between values. --viz-max-height/--viz-min-height are mirrored as
+     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them. */
+  --viz-max-height: 128px;
+  --viz-min-height: 2px;
+  --viz-duration: 130ms;
+  --viz-easing: cubic-bezier(.24, 1, .38, 1);
 }
 
 * {
@@ -46,7 +65,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: var(--space-base);
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -58,18 +77,18 @@ button {
 }
 
 .radio {
-  width: min(420px, 100%);
+  width: min(384px, 100%);
   display: grid;
   grid-template-areas:
     "speaker"
     "display"
     "transport"
     "theme";
-  gap: 16px;
+  gap: var(--space-md);
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 24px;
+  border-radius: var(--radius-base);
+  padding: var(--space-md);
   transition: background-color .2s ease, border-color .2s ease;
 }
 
@@ -77,37 +96,50 @@ button {
   grid-area: speaker;
   display: block;
   width: 100%;
-}
-
-.speaker__dot {
-  fill: var(--dot);
+  height: auto;
 }
 
 /* Display */
 .display {
-  grid-area: display;
+  background: var(--bg-display);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-xl);
+  grid-area: display;
   min-width: 0;
-  padding: 16px;
-  background: var(--bg-display);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  padding: var(--space-md) var(--space-md) var(--space-zero);
+  transition: background-color .2s ease, border-color .2s ease;
+}
+
+.display__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
 }
 
 .display__status-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-zero);
 }
 
 .display__status-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-sm);
   min-width: 0;
+}
+
+.display__meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-zero);
+  min-height: 1.25em;
 }
 
 .display__counter {
@@ -150,6 +182,9 @@ body[data-status="connecting"] .display__status {
 }
 
 .display__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
   min-width: 0;
 }
 
@@ -166,16 +201,19 @@ body[data-status="connecting"] .display__status {
 }
 
 .display__meta {
-  min-height: 1.25em;
-  margin-top: 4px;
+  flex: 1 1 0;
+  min-width: 0;
   font-size: 1rem;
   color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .display__visualizer {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
+  gap: var(--space-zero);
   height: var(--viz-max-height);
 }
 
@@ -183,7 +221,7 @@ body[data-status="connecting"] .display__status {
   flex: 1 1 0;
   min-width: 0;
   height: var(--viz-min-height);
-  background: var(--text-muted);
+  background: var(--border);
   border-radius: 1px;
   transition: height var(--viz-duration) var(--viz-easing);
 }
@@ -219,30 +257,63 @@ body[data-status="connecting"] .display__status {
   outline-offset: 2px;
 }
 
+/* Copy button */
+.btn--copy {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border-color: transparent;
+  background: var(--bg);
+  padding: var(--space-zero);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  color: var(--text-muted);
+}
+
+.btn--copy:hover:not(:disabled),
+.btn--copy:hover,
+.btn--copy.is-copied,
+.btn--copy.is-copied:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* Transport */
 .transport {
   grid-area: transport;
   display: flex;
-  gap: 8px;
+  gap: var(--space-base);
 }
 
 .btn--transport {
   flex: 1;
-  height: 56px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: inherit;
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1;
 }
 
 .btn--play.is-playing {
   border-color: var(--accent);
-  color: var(--accent);
+  color: var(--text);
+  background-color: var(--accent);
+}
+
+.btn--play.is-playing:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background-color: var(--accent-hover);
 }
 
 /* Theme toggle */
@@ -251,17 +322,17 @@ body[data-status="connecting"] .display__status {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-zero);
 }
 
 .theme-toggle__buttons {
   display: flex;
-  gap: 4px;
+  gap: var(--space-sm);
 }
 
 .logo {
   display: block;
-  height: 19px;
+  height: 26px;
   width: auto;
 }
 
@@ -294,6 +365,25 @@ html[data-theme="dark"] .logo--dark {
 
 @media (max-width: 360px) {
   .radio {
-    padding: 20px;
+    padding: var(--space-base);
+  }
+}
+
+/* Regular/desktop viewport: larger hit target for the status row's Copy
+   control, and the status row centers instead of aligning to the top. */
+@media (min-width: 600px) {
+  .display__status-row {
+    align-items: center;
+  }
+
+  .btn--copy {
+    flex-direction: row-reverse;
+    border-color: var(--border);
+    padding: var(--space-px) var(--space-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .btn--copy:hover:not(:disabled) {
+    background: var(--btn-bg-hover);
   }
 }

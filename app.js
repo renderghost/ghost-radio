@@ -23,7 +23,7 @@ const audio = document.getElementById("audio");
 // leaving the bars dead flat.
 const VISUALIZER = {
   bandCount: 32, // number of bars
-  maxHeightPx: 64, // keep in sync with --viz-max-height in styles.css
+  maxHeightPx: 128, // keep in sync with --viz-max-height in styles.css
   minHeightPx: 2, // keep in sync with --viz-min-height in styles.css
   fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
   smoothing: 0.8, // AnalyserNode.smoothingTimeConstant (0-1, higher = gentler)
@@ -46,9 +46,13 @@ const els = {
   btnPlay: document.getElementById("btn-play"),
   btnPrev: document.getElementById("btn-prev"),
   btnNext: document.getElementById("btn-next"),
+  btnCopy: document.getElementById("btn-copy"),
+  btnCopyLabel: document.getElementById("btn-copy-label"),
   visualizer: document.getElementById("visualizer"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
+
+const COPIED_LABEL_MS = 1500; // how long the Copy button shows "Copied" before reverting
 
 const CONNECT_TIMEOUT_MS = 15000; // give up on a silently-stuck "connecting" stream after this long
 
@@ -88,16 +92,41 @@ async function init() {
 
   state.stations = await loadStations();
 
-  const savedIndex = Number(localStorage.getItem(STORAGE_KEYS.index));
-  if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < state.stations.length) {
-    state.currentIndex = savedIndex;
+  const urlIndex = getStationIndexFromUrl();
+  if (urlIndex !== -1) {
+    state.currentIndex = urlIndex;
+  } else {
+    const savedIndex = Number(localStorage.getItem(STORAGE_KEYS.index));
+    if (Number.isInteger(savedIndex) && savedIndex >= 0 && savedIndex < state.stations.length) {
+      state.currentIndex = savedIndex;
+    }
   }
+  updateUrl();
 
   buildVisualizer();
   bindEvents();
   bindMediaSession();
   bindKeyboardShortcuts();
   render();
+}
+
+function getStationIndexFromUrl() {
+  const slug = new URLSearchParams(location.search).get("station");
+  if (!slug) return -1;
+  return state.stations.findIndex((s) => s.slug === slug);
+}
+
+// Keeps the URL's ?station= param in sync with the current station, via
+// replaceState so switching stations doesn't spam browser history.
+function updateUrl() {
+  const station = state.stations[state.currentIndex];
+  const url = new URL(location.href);
+  if (station?.slug) {
+    url.searchParams.set("station", station.slug);
+  } else {
+    url.searchParams.delete("station");
+  }
+  history.replaceState(null, "", url);
 }
 
 async function loadStations() {
@@ -116,10 +145,43 @@ function bindEvents() {
   els.btnPlay.addEventListener("click", togglePlay);
   els.btnPrev.addEventListener("click", () => changeStation(-1));
   els.btnNext.addEventListener("click", () => changeStation(1));
+  els.btnCopy.addEventListener("click", copyShareUrl);
 
   els.themeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
+}
+
+let copiedLabelTimeoutId = null;
+
+async function copyShareUrl() {
+  const url = location.href;
+  try {
+    await navigator.clipboard.writeText(url);
+  } catch {
+    // Clipboard API unavailable (no permission, insecure context, etc.) —
+    // fall back to the legacy selection-based copy.
+    const textarea = document.createElement("textarea");
+    textarea.value = url;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+    } catch {
+      // Give up silently — nothing more we can do here.
+    }
+    textarea.remove();
+  }
+
+  clearTimeout(copiedLabelTimeoutId);
+  els.btnCopy.classList.add("is-copied");
+  els.btnCopyLabel.textContent = "Copied";
+  copiedLabelTimeoutId = setTimeout(() => {
+    els.btnCopy.classList.remove("is-copied");
+    els.btnCopyLabel.textContent = "Copy";
+  }, COPIED_LABEL_MS);
 }
 
 function bindMediaSession() {
@@ -377,6 +439,7 @@ function changeStation(delta) {
   if (state.stations.length === 0) return;
   state.currentIndex = (state.currentIndex + delta + state.stations.length) % state.stations.length;
   localStorage.setItem(STORAGE_KEYS.index, String(state.currentIndex));
+  updateUrl();
   state.playing ? play() : render();
 }
 
