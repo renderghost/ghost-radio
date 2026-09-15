@@ -249,8 +249,32 @@ body[data-status="connecting"] .display__status {
 .theme-toggle {
   grid-area: theme;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.theme-toggle__buttons {
+  display: flex;
   gap: 4px;
+}
+
+.logo {
+  display: block;
+  height: 19px;
+  width: auto;
+}
+
+.logo--dark {
+  display: none;
+}
+
+html[data-theme="dark"] .logo--light {
+  display: none;
+}
+
+html[data-theme="dark"] .logo--dark {
+  display: block;
 }
 
 .btn--theme {
