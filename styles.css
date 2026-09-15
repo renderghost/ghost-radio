@@ -109,7 +109,6 @@ button {
   gap: var(--space-xl);
   grid-area: display;
   min-width: 0;
-  /* padding: var(--space-md) var(--space-md) var(--space-zero); */
   transition: background-color .2s ease, border-color .2s ease;
 }
 
@@ -118,7 +117,7 @@ button {
   flex-direction: column;
   gap: var(--space-sm);
   min-width: 0;
-  padding: var(--space-md) var(--space-md) var(--space-zero);
+  padding: var(--space-md);
 }
 
 .display__status-row {
