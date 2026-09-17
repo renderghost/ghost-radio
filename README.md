@@ -10,7 +10,7 @@ Live at [radio.renderg.host](https://radio.renderg.host).
 Serve the folder with any static file server, e.g.:
 
 ```
-python3 -m http.server 8080
+npx live-server --port=8080
 ```
 
 Then open `http://localhost:8080`.
@@ -33,7 +33,11 @@ Edit `stations.json` in the project root. Each entry has a `title`, a direct
 `streamUrl`, and an optional `location` (shown under the station name):
 
 ```json
-{ "title": "Station Name", "streamUrl": "https://example.com/stream.mp3", "location": "City, Country" }
+{
+  "title": "Station Name",
+  "streamUrl": "https://example.com/stream.mp3",
+  "location": "City, Country"
+}
 ```
 
 There's no fixed limit on the number of stations — the transport buttons
