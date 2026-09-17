@@ -54,6 +54,7 @@ const NOW_PLAYING_PROVIDERS = {
   radioco: fetchRadioCoNowPlaying,
   "icecast-json": fetchIcecastNowPlaying,
   azuracast: fetchAzuraCastNowPlaying,
+  wnyc: fetchWnycNowPlaying,
 };
 
 const els = {
@@ -71,7 +72,7 @@ const els = {
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
 
-const COPIED_LABEL_MS = 1500; // how long the Copy button shows "Copied" before reverting
+const COPIED_LABEL_MS = 1000; // how long the Copy button shows "Copied" before reverting
 
 const CONNECT_TIMEOUT_MS = 10000; // give up on a silently-stuck "seeking" stream after this long
 
@@ -102,6 +103,7 @@ let usingCors = true;
 let currentLoadController = null; // detaches the previous load's listeners the instant a new one starts
 let connectTimeoutId = null;
 let loadStartedAt = 0;
+let stationAttemptStartedAt = 0; // when this station's attempt began (both the CORS try and its no-CORS retry share this budget — see CONNECT_TIMEOUT_MS)
 let nowPlayingPollTimeoutId = null;
 let nowPlayingToken = 0; // bumped on every startNowPlaying()/stopNowPlaying() so a late fetch from an abandoned station can't render itself
 let nowPlayingResizeBound = false;
@@ -535,6 +537,20 @@ async function fetchAzuraCastNowPlaying({ apiUrl }) {
   return { raw: song.text ?? song.title, artist: song.artist ?? null, track: song.title ?? null };
 }
 
+// api.wnyc.org only sends Access-Control-Allow-Origin for *.wqxr.org (and
+// sibling NYPR) origins, not for this site — so this fetch is CORS-blocked in
+// production and always resolves to nothing. Kept correct against the real
+// API shape (composer as artist, piece title as track) for whenever that
+// changes, e.g. behind a proxy.
+async function fetchWnycNowPlaying({ slug }) {
+  const data = await fetchNowPlayingJson(`https://api.wnyc.org/api/v1/whats_on/${slug}/`);
+  const entry = data?.current_playlist_item?.catalog_entry;
+  const track = entry?.title;
+  if (!track) return null;
+  const artist = entry?.composer?.name ?? null;
+  return { raw: artist ? `${artist} - ${track}` : track, artist, track };
+}
+
 function togglePlay() {
   if (state.stations.length === 0) return;
   state.playing ? stop() : play();
@@ -567,6 +583,7 @@ function tuneToStation(index) {
   updateUrl();
 
   usingCors = true;
+  stationAttemptStartedAt = Date.now();
   loadStream(station.streamUrl);
   setStatus("seeking");
 }
@@ -601,15 +618,25 @@ function loadStream(url) {
   audio.addEventListener("error", () => handleStreamFailure(url), { signal });
   audio.addEventListener("stalled", () => handleStreamFailure(url), { signal });
 
-  connectTimeoutId = setTimeout(() => handleStreamFailure(url), CONNECT_TIMEOUT_MS);
+  // The no-CORS retry (see handleStreamFailure()) shares this station's
+  // overall budget rather than getting a fresh CONNECT_TIMEOUT_MS of its own
+  // — otherwise a dead station would take up to 2x as long to give up on.
+  // Skips the stale-echo check below: clearTimeout() above already guarantees
+  // an old load's timeout can never fire after a new one starts, so unlike
+  // the error/stalled events (which use a separate, less immediate cleanup
+  // path), this can't ever be a late echo — and with a near-zero remaining
+  // budget on the retry, it could otherwise fire within the grace window and
+  // get wrongly discarded as one, silently freezing the seek entirely.
+  const remainingBudget = Math.max(0, CONNECT_TIMEOUT_MS - (Date.now() - stationAttemptStartedAt));
+  connectTimeoutId = setTimeout(() => handleStreamFailure(url, { skipStaleCheck: true }), remainingBudget);
 
   audio.play().catch(() => {
     // Real failures are surfaced via the "error"/"stalled" listeners above.
   });
 }
 
-function handleStreamFailure(url) {
-  if (Date.now() - loadStartedAt < STALE_EVENT_GRACE_MS) return; // likely a stale echo — see STALE_EVENT_GRACE_MS above
+function handleStreamFailure(url, { skipStaleCheck = false } = {}) {
+  if (!skipStaleCheck && Date.now() - loadStartedAt < STALE_EVENT_GRACE_MS) return; // likely a stale echo — see STALE_EVENT_GRACE_MS above
   clearTimeout(connectTimeoutId);
   if (usingCors) {
     // Most streams don't send CORS headers. Retry once without it so

@@ -22,6 +22,6 @@
   { "title": "Systrum Sistum", "slug": "systrum-sistum", "streamUrl": "https://systrum.net:8443/SSR2", "location": "Brisbane, Australia", "nowPlaying": { "type": "icecast-json", "statusUrl": "https://systrum.net:8443/status-json.xsl", "listenUrlContains": "SSR2" } },
   { "title": "THF Radio", "slug": "thf", "streamUrl": "https://stream.thfradio.space/live2.mp3", "location": "Berlin, Germany", "nowPlaying": { "type": "icecast-json", "statusUrl": "https://stream.thfradio.space/status-json.xsl", "listenUrlContains": "live2.mp3" } },
   { "title": "Vintage Obscura", "slug": "vintage-obscura", "streamUrl": "https://radio.vintageobscura.net/stream", "location": "New York, USA", "nowPlaying": { "type": "icecast-json", "statusUrl": "https://radio.vintageobscura.net/status-json.xsl", "listenUrlContains": "vintageobscura.net" } },
-  { "title": "WQXR Classics", "slug": "wqxr-classics", "streamUrl": "https://stream.wqxr.org/wqxr-web?nyprBrowserId=3ee530f736cfae00", "location": "New York, USA" },
-  { "title": "WQXR New Sounds", "slug": "wqxr-new-sounds", "streamUrl": "https://q2stream.wqxr.org/q2-web?nyprBrowserId=3ee530f736cfae00", "location": "New York, USA" }
+  { "title": "WQXR Classics", "slug": "wqxr-classics", "streamUrl": "https://stream.wqxr.org/wqxr-web?nyprBrowserId=3ee530f736cfae00", "location": "New York, USA", "nowPlaying": { "type": "wnyc", "slug": "wqxr" } },
+  { "title": "WQXR New Sounds", "slug": "wqxr-new-sounds", "streamUrl": "https://q2stream.wqxr.org/q2-web?nyprBrowserId=3ee530f736cfae00", "location": "New York, USA", "nowPlaying": { "type": "wnyc", "slug": "q2" } }
 ]
