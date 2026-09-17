@@ -7,7 +7,7 @@ const state = {
   stations: [],
   currentIndex: 0,
   playing: false,
-  status: "idle", // idle | connecting | playing | error
+  status: "idle", // idle | seeking | playing | error
   theme: "system", // light | dark | system
 };
 
@@ -33,7 +33,7 @@ const VISUALIZER = {
 
 const STATUS_LABELS = {
   idle: "Off Air",
-  connecting: "Connecting",
+  seeking: "Seeking",
   playing: "Live",
   error: "Signal Lost",
 };
@@ -69,7 +69,7 @@ const els = {
 
 const COPIED_LABEL_MS = 1500; // how long the Copy button shows "Copied" before reverting
 
-const CONNECT_TIMEOUT_MS = 15000; // give up on a silently-stuck "connecting" stream after this long
+const CONNECT_TIMEOUT_MS = 10000; // give up on a silently-stuck "seeking" stream after this long
 
 const NOW_PLAYING_POLL_MS = 15000; // how often to re-fetch now-playing metadata while a station plays
 
@@ -100,6 +100,8 @@ let loadStartedAt = 0;
 let nowPlayingPollTimeoutId = null;
 let nowPlayingToken = 0; // bumped on every startNowPlaying()/stopNowPlaying() so a late fetch from an abandoned station can't render itself
 let nowPlayingResizeBound = false;
+let seekStartIndex = 0; // the first station tried this seek — wrapping back to it means every station is dead
+let seekDirection = 1; // 1 = forward (next), -1 = backward (previous)
 
 init();
 
@@ -294,7 +296,7 @@ function startVisualizer() {
   }
   // Only pick a starting mode when there isn't already a deliberate one (set
   // by play() or handleStreamFailure()) — this function may run again mid-
-  // session (e.g. connecting -> playing) and must never clobber that choice.
+  // session (e.g. seeking -> playing) and must never clobber that choice.
   if (visualizerMode === "idle") {
     visualizerMode = analyser ? "probing" : "fake";
     silentFrameCount = 0;
@@ -510,9 +512,31 @@ function togglePlay() {
 }
 
 function play() {
-  const station = state.stations[state.currentIndex];
-  if (!station) return;
+  if (state.stations.length === 0) return;
   state.playing = true;
+  beginSeeking(state.currentIndex, 1);
+}
+
+// Starts (or restarts) a seek: like tuning a real radio dial, a dead station
+// doesn't just error out — it keeps moving in `direction` until it finds one
+// that's actually live, or gives up after a full lap back to `startIndex`
+// (see advanceSeek()). Entry points (play/changeStation) call this to begin
+// a fresh seek; handleStreamFailure() calls advanceSeek() to continue one
+// already in progress, without resetting where "a full lap" started.
+function beginSeeking(startIndex, direction) {
+  seekStartIndex = startIndex;
+  seekDirection = direction;
+  tuneToStation(startIndex);
+}
+
+function tuneToStation(index) {
+  const station = state.stations[index];
+  if (!station) return;
+
+  state.currentIndex = index;
+  localStorage.setItem(STORAGE_KEYS.index, String(index));
+  updateUrl();
+
   usingCors = true;
   // A new station gets a fresh shot at real analysis, even if the last one
   // fell back to the simulated animation.
@@ -521,7 +545,7 @@ function play() {
     silentFrameCount = 0;
   }
   loadStream(station.streamUrl);
-  setStatus("connecting");
+  setStatus("seeking");
 }
 
 function loadStream(url) {
@@ -543,7 +567,7 @@ function loadStream(url) {
   audio.src = url;
   audio.load();
 
-  audio.addEventListener("waiting", () => setStatus("connecting"), { signal });
+  audio.addEventListener("waiting", () => setStatus("seeking"), { signal });
   audio.addEventListener("playing", () => {
     clearTimeout(connectTimeoutId);
     setStatus("playing");
@@ -572,7 +596,35 @@ function handleStreamFailure(url) {
     loadStream(url);
     return;
   }
+  // Genuinely dead (both CORS and no-CORS attempts failed) — this station is
+  // off the air, so keep seeking rather than just erroring out.
+  advanceSeek();
+}
+
+// Tries the next station in `seekDirection`. If that would be the very
+// station this seek started from, we've made a full lap and nothing on the
+// dial is live — land back there and give up rather than looping forever.
+function advanceSeek() {
+  const nextIndex = (state.currentIndex + seekDirection + state.stations.length) % state.stations.length;
+  if (nextIndex === seekStartIndex) {
+    giveUpSeeking(nextIndex);
+    return;
+  }
+  tuneToStation(nextIndex);
+}
+
+function giveUpSeeking(index) {
+  currentLoadController?.abort();
+  currentLoadController = null;
+  clearTimeout(connectTimeoutId);
+  stopNowPlaying();
+  state.currentIndex = index;
+  localStorage.setItem(STORAGE_KEYS.index, String(index));
+  updateUrl();
   state.playing = false;
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.load();
   setStatus("error");
 }
 
@@ -590,10 +642,9 @@ function stop() {
 
 function changeStation(delta) {
   if (state.stations.length === 0) return;
-  state.currentIndex = (state.currentIndex + delta + state.stations.length) % state.stations.length;
-  localStorage.setItem(STORAGE_KEYS.index, String(state.currentIndex));
-  updateUrl();
-  play();
+  const nextIndex = (state.currentIndex + delta + state.stations.length) % state.stations.length;
+  state.playing = true;
+  beginSeeking(nextIndex, delta >= 0 ? 1 : -1);
 }
 
 function setStatus(status) {
