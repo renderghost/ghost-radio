@@ -38,6 +38,20 @@ const STATUS_LABELS = {
   error: "Signal Lost",
 };
 
+// Fetches for stations that opt in via a `nowPlaying` block in stations.json
+// (see startNowPlaying() below). Every provider normalizes to
+// { raw, artist, track }: `raw` is always the display string, `artist`/
+// `track` are only set when the source gives them separately (or split
+// cleanly on " - "). That split shape is intentional — it's the input a
+// future Last.fm scrobble step would need — but nothing here scrobbles
+// anything yet.
+const NOW_PLAYING_PROVIDERS = {
+  somafm: fetchSomaFmNowPlaying,
+  radioco: fetchRadioCoNowPlaying,
+  "icecast-json": fetchIcecastNowPlaying,
+  azuracast: fetchAzuraCastNowPlaying,
+};
+
 const els = {
   statusLabel: document.getElementById("status-label"),
   stationCounter: document.getElementById("station-counter"),
@@ -49,12 +63,15 @@ const els = {
   btnCopy: document.getElementById("btn-copy"),
   btnCopyLabel: document.getElementById("btn-copy-label"),
   visualizer: document.getElementById("visualizer"),
+  nowPlaying: document.getElementById("now-playing"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
 };
 
 const COPIED_LABEL_MS = 1500; // how long the Copy button shows "Copied" before reverting
 
 const CONNECT_TIMEOUT_MS = 15000; // give up on a silently-stuck "connecting" stream after this long
+
+const NOW_PLAYING_POLL_MS = 15000; // how often to re-fetch now-playing metadata while a station plays
 
 // Reassigning `audio.src` mid-stream can make the *previous*, now-abandoned
 // live stream report a trailing "error"/"stalled" after the new one has
@@ -80,6 +97,9 @@ let usingCors = true;
 let currentLoadController = null; // detaches the previous load's listeners the instant a new one starts
 let connectTimeoutId = null;
 let loadStartedAt = 0;
+let nowPlayingPollTimeoutId = null;
+let nowPlayingToken = 0; // bumped on every startNowPlaying()/stopNowPlaying() so a late fetch from an abandoned station can't render itself
+let nowPlayingResizeBound = false;
 
 init();
 
@@ -354,6 +374,136 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function startNowPlaying(station) {
+  stopNowPlaying();
+
+  const config = station?.nowPlaying;
+  const provider = config && NOW_PLAYING_PROVIDERS[config.type];
+  if (!provider) return;
+
+  const token = ++nowPlayingToken;
+  const tick = async () => {
+    let result = null;
+    try {
+      result = await provider(config);
+    } catch {
+      result = null;
+    }
+    if (token !== nowPlayingToken) return; // station changed while this fetch was in flight
+    renderNowPlaying(result);
+    nowPlayingPollTimeoutId = setTimeout(tick, NOW_PLAYING_POLL_MS);
+  };
+  tick();
+}
+
+function stopNowPlaying() {
+  nowPlayingToken++;
+  clearTimeout(nowPlayingPollTimeoutId);
+  nowPlayingPollTimeoutId = null;
+  renderNowPlaying(null);
+}
+
+function renderNowPlaying(result) {
+  const raw = result?.raw?.trim();
+  if (!els.nowPlaying) return;
+
+  if (!raw) {
+    els.nowPlaying.hidden = true;
+    els.nowPlaying.innerHTML = "";
+    return;
+  }
+
+  els.nowPlaying.hidden = false;
+  els.nowPlaying.innerHTML = `
+    <div class="display__now-playing-track">
+      <span>${escapeHtml(raw)}</span>
+      <span aria-hidden="true">${escapeHtml(raw)}</span>
+    </div>
+  `;
+
+  updateNowPlayingTicker();
+  if (!nowPlayingResizeBound) {
+    nowPlayingResizeBound = true;
+    window.addEventListener("resize", updateNowPlayingTicker);
+  }
+}
+
+// Ticking only kicks in once the (single-copy) text actually overflows its
+// container — short strings just sit still. Measured against the first
+// span's width, since the track holds two copies side by side for the loop.
+function updateNowPlayingTicker() {
+  const track = els.nowPlaying?.querySelector(".display__now-playing-track");
+  const firstCopy = track?.querySelector("span");
+  if (!track || !firstCopy) return;
+  // Force the span to its natural (unshrunk) width for this measurement,
+  // regardless of which CSS state (ticking/not, reduced-motion) currently
+  // has it flex-shrunk to fit — scrollWidth on a shrunk flex item isn't a
+  // reliable read of the text's true intrinsic width.
+  firstCopy.style.width = "max-content";
+  const overflowing = firstCopy.scrollWidth > els.nowPlaying.clientWidth;
+  firstCopy.style.width = "";
+  track.classList.toggle("is-ticking", overflowing);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Splits a combined "Artist - Track" string. Returns nulls if it doesn't
+// look like that shape (no separator, or one side is empty) rather than
+// guessing wrong.
+function splitArtistTrack(combined) {
+  const parts = combined.split(" - ");
+  if (parts.length !== 2) return { artist: null, track: null };
+  const [artist, track] = parts.map((p) => p.trim());
+  if (!artist || !track) return { artist: null, track: null };
+  return { artist, track };
+}
+
+async function fetchNowPlayingJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("bad response");
+  return res.json();
+}
+
+async function fetchSomaFmNowPlaying({ channel }) {
+  const data = await fetchNowPlayingJson(`https://somafm.com/songs/${channel}.json`);
+  const song = data?.songs?.[0];
+  if (!song?.title) return null;
+  return {
+    raw: song.artist ? `${song.artist} - ${song.title}` : song.title,
+    artist: song.artist ?? null,
+    track: song.title,
+  };
+}
+
+async function fetchRadioCoNowPlaying({ stationId }) {
+  const data = await fetchNowPlayingJson(`https://public.radio.co/stations/${stationId}/status`);
+  const raw = data?.current_track?.title;
+  if (!raw) return null;
+  return { raw, ...splitArtistTrack(raw) };
+}
+
+async function fetchIcecastNowPlaying({ statusUrl, listenUrlContains }) {
+  const data = await fetchNowPlayingJson(statusUrl);
+  const source = data?.icestats?.source;
+  const mount = Array.isArray(source)
+    ? source.find((s) => listenUrlContains && s.listenurl?.includes(listenUrlContains))
+    : source;
+  const raw = mount?.title;
+  if (!raw) return null;
+  return { raw, ...splitArtistTrack(raw) };
+}
+
+async function fetchAzuraCastNowPlaying({ apiUrl }) {
+  const data = await fetchNowPlayingJson(apiUrl);
+  const song = data?.now_playing?.song;
+  if (!song?.title && !song?.text) return null;
+  return { raw: song.text ?? song.title, artist: song.artist ?? null, track: song.title ?? null };
+}
+
 function togglePlay() {
   if (state.stations.length === 0) return;
   state.playing ? stop() : play();
@@ -381,6 +531,7 @@ function loadStream(url) {
   // behind "errors when I press next/prev while a station is still loading").
   currentLoadController?.abort();
   clearTimeout(connectTimeoutId);
+  stopNowPlaying(); // clear any previous station's now-playing text immediately, don't wait for the new one
 
   const controller = new AbortController();
   currentLoadController = controller;
@@ -396,6 +547,7 @@ function loadStream(url) {
   audio.addEventListener("playing", () => {
     clearTimeout(connectTimeoutId);
     setStatus("playing");
+    startNowPlaying(state.stations[state.currentIndex]);
   }, { signal });
   audio.addEventListener("error", () => handleStreamFailure(url), { signal });
   audio.addEventListener("stalled", () => handleStreamFailure(url), { signal });
@@ -428,6 +580,7 @@ function stop() {
   currentLoadController?.abort();
   currentLoadController = null;
   clearTimeout(connectTimeoutId);
+  stopNowPlaying();
   state.playing = false;
   audio.pause();
   audio.removeAttribute("src");
