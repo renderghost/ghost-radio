@@ -1,29 +1,29 @@
 :root {
-  --bg: #dedcd7;
-  --card-bg: #f2f1ed;
-  --text: #1c1c1a;
-  --text-muted: #8c8b85;
-  --bg-display: #dedcd7;
-  --border: #c7c5be;
-  --dot: #47463f;
-  --btn-bg: #f2f1ed;
-  --btn-bg-hover: #e7e5df;
-  --accent: #FF713D;
-  --accent-hover: #F35016;
+  --bg: hsl(16, 10%, 84%);
+  --card-bg: hsl(16, 10%, 93%);
+  --text: hsl(16, 10%, 11%);
+  --text-muted: hsl(16, 10%, 50%);
+  --bg-display: hsl(16, 10%, 84%);
+  --border: hsl(16, 10%, 76%);
+  --dot: hsl(16, 10%, 24%);
+  --btn-bg: hsl(16, 10%, 93%);
+  --btn-bg-hover: hsl(16, 10%, 84%);
+  --accent: hsl(16, 100%, 62%);
+  --accent-hover: hsl(16, 90%, 52%);
 }
 
 html[data-theme="dark"] {
-  --bg: #12100F;
-  --card-bg: #1E1B1A;
-  --text: #EDEBEA;
-  --text-muted: #685E5A;
-  --bg-display: #12100F;
-  --border: hsl(16, 7%, 20%);
-  --dot: #685E5A;
-  --btn-bg: #2C2726;
-  --btn-bg-hover: #37312F;
-  --accent: #F35016;
-  --accent-hover: #FF713D;
+  --bg: hsl(16, 10%, 6%);
+  --card-bg: hsl(16, 10%, 16%);
+  --text: hsl(16, 10%, 92%);
+  --text-muted: hsl(16, 10%, 50%);
+  --bg-display: hsl(16, 10%, 6%);
+  --border: hsl(16, 10%, 24%);
+  --dot: hsl(17, 10%, 310%);
+  --btn-bg: hsl(10, 10%, 16%);
+  --btn-bg-hover: hsl(16, 10%, 20%);
+  --accent: hsl(16, 90%, 52%);
+  --accent-hover: hsl(16, 100%, 62%);
 }
 
 :root {
@@ -54,6 +54,14 @@ html[data-theme="dark"] {
   --viz-easing: cubic-bezier(.24, 1, .38, 1);
 }
 
+:root {
+  /* Now-playing ticker: how long one scroll cycle takes, and how much gap
+     sits between the looping text and its duplicate. Only applied when the
+     text is long enough to overflow (see .is-ticking below). */
+  --ticker-duration: 18s;
+  --ticker-gap: 48px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -68,7 +76,7 @@ body {
   padding: var(--space-base);
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   transition: background-color .2s ease, color .2s ease;
 }
 
@@ -90,6 +98,8 @@ button {
   border-radius: var(--radius-base);
   padding: var(--space-md);
   transition: background-color .2s ease, border-color .2s ease;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .speaker {
@@ -101,6 +111,7 @@ button {
 
 /* Display */
 .display {
+  position: relative;
   background: var(--bg-display);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
@@ -124,7 +135,7 @@ button {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--space-zero);
+  padding-bottom: 4px;
 }
 
 .display__status-group {
@@ -139,26 +150,24 @@ button {
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-zero);
-  min-height: 1.25em;
 }
 
 .display__counter {
   flex: none;
-  font-size: .875rem;
   color: var(--text-muted);
 }
 
 .display__status {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--text-muted);
 }
 
 .display__status-label {
-  font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
@@ -190,6 +199,7 @@ body[data-status="connecting"] .display__status {
 
 .display__name {
   font-size: clamp(1.5rem, 4.2vw, 1.25rem);
+  line-height: 1.25;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -203,7 +213,6 @@ body[data-status="connecting"] .display__status {
 .display__meta {
   flex: 1 1 0;
   min-width: 0;
-  font-size: 1rem;
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -229,6 +238,70 @@ body[data-status="connecting"] .display__status {
 @media (prefers-reduced-motion: reduce) {
   .display__visualizer-bar {
     transition: none;
+  }
+}
+
+.display__now-playing {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  overflow: hidden;
+  padding: var(--space-md);
+  font-weight: 400;
+  color: var(--text);
+}
+
+.display__now-playing-track {
+  display: flex;
+  white-space: nowrap;
+}
+
+/* Not ticking (text fits, or reduced-motion overrides a ticking track below):
+   the single visible copy shrinks to the container and ellipsizes if needed. */
+.display__now-playing-track:not(.is-ticking) span:last-child {
+  display: none;
+}
+
+.display__now-playing-track:not(.is-ticking) span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ticking: both copies, each padded with the loop gap on its trailing edge,
+   sized to their own content (not shrunk) — this makes the track exactly
+   twice the width of one cycle, so translating by -50% moves precisely one
+   full cycle and the restart to 0% is invisible. */
+.display__now-playing-track.is-ticking {
+  width: max-content;
+  animation: now-playing-ticker var(--ticker-duration) linear infinite;
+}
+
+.display__now-playing-track.is-ticking span {
+  flex: none;
+  padding-right: var(--ticker-gap);
+}
+
+@keyframes now-playing-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .display__now-playing-track.is-ticking {
+    width: auto;
+    animation: none;
+  }
+  .display__now-playing-track.is-ticking span:last-child {
+    display: none;
+  }
+  .display__now-playing-track.is-ticking span:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -266,9 +339,8 @@ body[data-status="connecting"] .display__status {
   border-color: transparent;
   background: var(--bg);
   padding: var(--space-zero);
-  font-size: .875rem;
+  font-size: .75rem;
   font-weight: 600;
-  line-height: 1.5;
   color: var(--text-muted);
 }
 
@@ -300,8 +372,7 @@ body[data-status="connecting"] .display__status {
   align-items: center;
   justify-content: center;
   color: inherit;
-  font-size: 24px;
-  line-height: 1;
+  font-size: 1.5rem;
 }
 
 .btn--play.is-playing {

@@ -25,6 +25,9 @@
 <link rel="icon" href="favicon-64.png" sizes="64x64" type="image/png">
 <link rel="icon" href="favicon-256.png" sizes="256x256" type="image/png">
 <link rel="apple-touch-icon" href="favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -59,6 +62,7 @@
       </div>
     </div>
     <div class="display__visualizer" id="visualizer" aria-hidden="true"></div>
+    <div class="display__now-playing" id="now-playing" hidden></div>
   </section>
 
   <section class="transport">
@@ -76,8 +80,8 @@
 
 
   <section class="theme-toggle" aria-label="Display mode">
-    <img class="logo logo--light" src="logo-light.svg" alt="radioghost" width="116" height="19">
-    <img class="logo logo--dark" src="logo-dark.svg" alt="radioghost" width="116" height="19">
+    <img class="logo logo--light" src="logo-light.png" alt="radioghost" width="116" height="19">
+    <img class="logo logo--dark" src="logo-dark.png" alt="radioghost" width="116" height="19">
     <div class="theme-toggle__buttons">
     <button class="btn btn--theme" data-theme-choice="light" type="button" aria-label="Light mode">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6">
