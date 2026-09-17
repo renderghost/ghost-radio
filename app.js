@@ -12,6 +12,14 @@ const state = {
 };
 
 const audio = document.getElementById("audio");
+// Never passed to createMediaElementSource() — per spec, once an element is
+// routed into a Web Audio graph its output can never go back to playing
+// natively, for the lifetime of the page. Stations flagged `noCors` use this
+// element instead, so their audio is guaranteed to play exactly like opening
+// the stream URL directly in a browser tab, with zero Web Audio involvement
+// (and consequently no real visualizer analysis — they always show the
+// fake/seeking animation, which is an honest trade-off for actually working).
+const audioPlain = document.getElementById("audio-plain");
 
 // Real Web Audio frequency analysis, with a simulated fallback for when it
 // can't get real data: most internet radio streams don't send CORS headers
@@ -55,6 +63,9 @@ const NOW_PLAYING_PROVIDERS = {
   "icecast-json": fetchIcecastNowPlaying,
   azuracast: fetchAzuraCastNowPlaying,
   wnyc: fetchWnycNowPlaying,
+  nts: fetchNtsNowPlaying,
+  airtime: fetchAirtimeNowPlaying,
+  alhara: fetchAlharaNowPlaying,
 };
 
 const els = {
@@ -109,6 +120,7 @@ let nowPlayingToken = 0; // bumped on every startNowPlaying()/stopNowPlaying() s
 let nowPlayingResizeBound = false;
 let seekStartIndex = 0; // the first station tried this seek — wrapping back to it means every station is dead
 let seekDirection = 1; // 1 = forward (next), -1 = backward (previous)
+let activeAudio = audio; // whichever element (audio or audioPlain) the current station is loaded into
 
 init();
 
@@ -551,6 +563,42 @@ async function fetchWnycNowPlaying({ slug }) {
   return { raw: artist ? `${artist} - ${track}` : track, artist, track };
 }
 
+// NTS's own now-playing list covers both its channels in one response; pick
+// out the one matching this station's channel number. Gives a show title
+// (e.g. "Secretsundaze"), not a track, so no artist/track split applies.
+async function fetchNtsNowPlaying({ channel }) {
+  const data = await fetchNowPlayingJson("https://www.nts.live/api/v2/live");
+  const entry = data?.results?.find((r) => r.channel_name === String(channel));
+  const raw = entry?.now?.broadcast_title;
+  if (!raw) return null;
+  return { raw, artist: null, track: null };
+}
+
+// Airtime (airtime.pro-hosted stations): the now-playing API lives on the
+// base <slug>.airtime.pro host, not the out.airtime.pro subdomain used for
+// the audio stream itself. Prefers the actual playing track; live DJ sets
+// have no track-level data, so falls back to the current show's name.
+async function fetchAirtimeNowPlaying({ slug }) {
+  const data = await fetchNowPlayingJson(`https://${slug}.airtime.pro/api/live-info-v2`);
+  const track = data?.tracks?.current;
+  if (track?.type === "track" && track.name) {
+    const artist = track.metadata?.artist_name || null;
+    const title = track.metadata?.track_title || track.name;
+    return { raw: artist ? `${artist} - ${title}` : title, artist, track: title };
+  }
+  const show = data?.shows?.current?.name;
+  if (!show) return null;
+  return { raw: show, artist: null, track: null };
+}
+
+async function fetchAlharaNowPlaying() {
+  const data = await fetchNowPlayingJson("https://ch2.radioalhara.net/api/now-playing");
+  const title = data?.title;
+  if (!title) return null;
+  const artist = data?.artist ?? null;
+  return { raw: artist ? `${artist} - ${title}` : title, artist, track: title };
+}
+
 function togglePlay() {
   if (state.stations.length === 0) return;
   state.playing ? stop() : play();
@@ -582,10 +630,28 @@ function tuneToStation(index) {
   localStorage.setItem(STORAGE_KEYS.index, String(index));
   updateUrl();
 
-  usingCors = true;
+  // Most stations get a real shot at CORS (for actual spectrum analysis),
+  // falling back to a plain load if that fails (see handleStreamFailure()).
+  // A few have servers that are guaranteed to fail CORS in a way the retry
+  // can't cleanly recover from (e.g. Vintage Obscura sends a malformed,
+  // duplicated Access-Control-Allow-Origin header, which Chrome rejects
+  // outright) — those opt out via `noCors`, skip the CORS attempt, AND use
+  // audioPlain instead of audio, so they're never touched by Web Audio at
+  // all (see audioPlain's declaration for why that matters).
+  const nextAudio = station.noCors ? audioPlain : audio;
+  if (nextAudio !== activeAudio) resetAudioElement(activeAudio); // stop whatever the other element was doing
+  activeAudio = nextAudio;
+
+  usingCors = !station.noCors;
   stationAttemptStartedAt = Date.now();
   loadStream(station.streamUrl);
   setStatus("seeking");
+}
+
+function resetAudioElement(el) {
+  el.pause();
+  el.removeAttribute("src");
+  el.load();
 }
 
 function loadStream(url) {
@@ -604,19 +670,19 @@ function loadStream(url) {
   loadStartedAt = Date.now();
 
   // crossOrigin must be set before .src for it to take effect on this load.
-  audio.crossOrigin = usingCors ? "anonymous" : null;
-  audio.src = url;
-  audio.load();
+  activeAudio.crossOrigin = usingCors ? "anonymous" : null;
+  activeAudio.src = url;
+  activeAudio.load();
 
-  audio.addEventListener("waiting", () => setStatus("seeking"), { signal });
-  audio.addEventListener("playing", () => {
+  activeAudio.addEventListener("waiting", () => setStatus("seeking"), { signal });
+  activeAudio.addEventListener("playing", () => {
     clearTimeout(connectTimeoutId);
     audioConfirmedPlaying = true;
     setStatus("playing");
     startNowPlaying(state.stations[state.currentIndex]);
   }, { signal });
-  audio.addEventListener("error", () => handleStreamFailure(url), { signal });
-  audio.addEventListener("stalled", () => handleStreamFailure(url), { signal });
+  activeAudio.addEventListener("error", () => handleStreamFailure(url), { signal });
+  activeAudio.addEventListener("stalled", () => handleStreamFailure(url), { signal });
 
   // The no-CORS retry (see handleStreamFailure()) shares this station's
   // overall budget rather than getting a fresh CONNECT_TIMEOUT_MS of its own
@@ -630,7 +696,7 @@ function loadStream(url) {
   const remainingBudget = Math.max(0, CONNECT_TIMEOUT_MS - (Date.now() - stationAttemptStartedAt));
   connectTimeoutId = setTimeout(() => handleStreamFailure(url, { skipStaleCheck: true }), remainingBudget);
 
-  audio.play().catch(() => {
+  activeAudio.play().catch(() => {
     // Real failures are surfaced via the "error"/"stalled" listeners above.
   });
 }
@@ -672,9 +738,7 @@ function giveUpSeeking(index) {
   localStorage.setItem(STORAGE_KEYS.index, String(index));
   updateUrl();
   state.playing = false;
-  audio.pause();
-  audio.removeAttribute("src");
-  audio.load();
+  resetAudioElement(activeAudio);
   setStatus("error");
 }
 
@@ -684,9 +748,7 @@ function stop() {
   clearTimeout(connectTimeoutId);
   stopNowPlaying();
   state.playing = false;
-  audio.pause();
-  audio.removeAttribute("src");
-  audio.load();
+  resetAudioElement(activeAudio);
   setStatus("idle");
 }
 
