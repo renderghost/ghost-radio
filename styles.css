@@ -40,6 +40,7 @@ html[data-theme="dark"] {
   --space-sm: 4px;
   --space-base: 8px;
   --space-md: 16px;
+  --space-mmd: 20px;
   --space-lg: 24px;
   --space-xl: 32px;
   }
@@ -96,7 +97,7 @@ button {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-base);
-  padding: var(--space-md);
+  padding: var(--space-lg) var(--space-md);
   transition: background-color .2s ease, border-color .2s ease;
   font-size: 1rem;
   line-height: 1.25;
@@ -366,12 +367,54 @@ body[data-status="seeking"] .display__status {
   justify-content: center;
 }
 
+.btn__icon--transport-back,
+.btn__icon--transport-forward {
+  width: 12px;
+  height: 20px;
+}
+
+.btn__icon--transport-play {
+  width: 19px;
+  height: 20px;
+}
+
+.btn__icon--transport-back {
+  mask-image: url("art/transport-back.svg");
+  -webkit-mask-image: url("art/transport-back.svg");
+}
+
+.btn__icon--transport-play {
+  mask-image: url("art/transport-play.svg");
+  -webkit-mask-image: url("art/transport-play.svg");
+}
+
+.btn__icon--transport-forward {
+  mask-image: url("art/transport-forward.svg");
+  -webkit-mask-image: url("art/transport-forward.svg");
+}
+
 .btn__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: inherit;
   font-size: 1.5rem;
+}
+
+/* Linked SVG icons, coloured via CSS mask rather than inline markup — the
+   source files are plain black shapes on transparent backgrounds; only
+   their alpha (the shape) is used, so background-color fully controls the
+   rendered colour via the same currentColor cascade as text-glyph icons. */
+.btn__icon--mask {
+  width: 20px;
+  height: 20px;
+  background-color: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
 }
 
 .btn--play.is-playing {
@@ -431,6 +474,21 @@ html[data-theme="dark"] .logo--dark {
 .btn--theme.is-active {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+.btn__icon--mode-light {
+  mask-image: url("art/mode-light.svg");
+  -webkit-mask-image: url("art/mode-light.svg");
+}
+
+.btn__icon--mode-dark {
+  mask-image: url("art/mode-dark.svg");
+  -webkit-mask-image: url("art/mode-dark.svg");
+}
+
+.btn__icon--mode-device {
+  mask-image: url("art/mode-device.svg");
+  -webkit-mask-image: url("art/mode-device.svg");
 }
 
 @media (max-width: 360px) {
