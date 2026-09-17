@@ -28,7 +28,11 @@ const VISUALIZER = {
   fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
   smoothing: 0.8, // AnalyserNode.smoothingTimeConstant (0-1, higher = gentler)
   silentFramesBeforeFallback: 90, // ~1.5s at 60fps of all-zero data before giving up on real analysis
-  fakeUpdateIntervalMs: 140, // how often the simulated fallback picks new target bar levels
+  fakeUpdateIntervalMs: 140, // how often the simulated "playing but can't analyze" fallback picks new target bar levels
+  seekingWaveCycles: 2.5, // how many full sine cycles are visible across the bars at once
+  seekingWaveSpeed: 1.6, // radians/sec the seeking wave phases left-to-right at
+  seekingWaveBaseline: 0.42, // center height of the seeking wave (0-1)
+  seekingWaveAmplitude: 0.38, // how far above/below baseline the seeking wave swings (0-1)
 };
 
 const STATUS_LABELS = {
@@ -85,7 +89,8 @@ const STALE_EVENT_GRACE_MS = 300;
 
 let visualizerBars = [];
 let visualizerFrame = null;
-let visualizerMode = "idle"; // "idle" | "probing" | "real" | "fake"
+let visualizerMode = "idle"; // "idle" | "seeking" | "probing" | "real" | "fake"
+let audioConfirmedPlaying = false; // has the "playing" event fired for the current attempt yet? — while false, "fake" mode shows the seeking wave instead of the dome-random fallback
 let silentFrameCount = 0;
 let fakeEnergy = 0.6;
 let lastFakeTick = 0;
@@ -294,13 +299,6 @@ function startVisualizer() {
   if (audioCtx && audioCtx.state === "suspended") {
     audioCtx.resume().catch(() => {});
   }
-  // Only pick a starting mode when there isn't already a deliberate one (set
-  // by play() or handleStreamFailure()) — this function may run again mid-
-  // session (e.g. seeking -> playing) and must never clobber that choice.
-  if (visualizerMode === "idle") {
-    visualizerMode = analyser ? "probing" : "fake";
-    silentFrameCount = 0;
-  }
   if (visualizerFrame) return;
   runVisualizerFrame();
 }
@@ -316,6 +314,24 @@ function stopVisualizer() {
 
 function runVisualizerFrame(timestamp) {
   visualizerFrame = requestAnimationFrame(runVisualizerFrame);
+  const now = timestamp ?? performance.now();
+
+  if (!audioConfirmedPlaying) {
+    // Nothing has actually started decoding yet, so real analysis is
+    // guaranteed to read silence — skip straight to the seeking wave rather
+    // than sitting idle through a probing window that can't possibly pay off.
+    visualizerMode = "seeking";
+    tickSeekingVisualizer(now);
+    return;
+  }
+
+  if (visualizerMode === "seeking" || visualizerMode === "idle") {
+    // Just switched over to confirmed-playing — give real analysis a fresh
+    // probing window (the CSS transition on each bar smooths the handover
+    // from the seeking wave's last frame into whatever comes next).
+    visualizerMode = analyser ? "probing" : "fake";
+    silentFrameCount = 0;
+  }
 
   if (visualizerMode === "probing" || visualizerMode === "real") {
     analyser.getByteFrequencyData(freqData);
@@ -336,11 +352,24 @@ function runVisualizerFrame(timestamp) {
 
   // Fake mode only picks new random targets periodically; the CSS transition
   // on each bar handles the gentle glide between them every frame in between.
-  const now = timestamp ?? performance.now();
   if (now - lastFakeTick >= VISUALIZER.fakeUpdateIntervalMs) {
     lastFakeTick = now;
     tickFakeVisualizer();
   }
+}
+
+// Simulated "no signal yet" animation while a station is still being sought:
+// a sine wave that phases smoothly from left to right. Distinct from
+// tickFakeVisualizer()'s settled dome-random look, which only kicks in once
+// audio is confirmed playing but can't be analyzed.
+function tickSeekingVisualizer(timestampMs) {
+  const t = timestampMs / 1000;
+  const n = visualizerBars.length;
+  visualizerBars.forEach((bar, i) => {
+    const phase = (i / n) * VISUALIZER.seekingWaveCycles * 2 * Math.PI - t * VISUALIZER.seekingWaveSpeed;
+    const level = VISUALIZER.seekingWaveBaseline + VISUALIZER.seekingWaveAmplitude * Math.sin(phase);
+    setBarHeight(bar, level);
+  });
 }
 
 function renderRealLevels() {
@@ -538,12 +567,6 @@ function tuneToStation(index) {
   updateUrl();
 
   usingCors = true;
-  // A new station gets a fresh shot at real analysis, even if the last one
-  // fell back to the simulated animation.
-  if (analyser) {
-    visualizerMode = "probing";
-    silentFrameCount = 0;
-  }
   loadStream(station.streamUrl);
   setStatus("seeking");
 }
@@ -556,6 +579,7 @@ function loadStream(url) {
   currentLoadController?.abort();
   clearTimeout(connectTimeoutId);
   stopNowPlaying(); // clear any previous station's now-playing text immediately, don't wait for the new one
+  audioConfirmedPlaying = false;
 
   const controller = new AbortController();
   currentLoadController = controller;
@@ -570,6 +594,7 @@ function loadStream(url) {
   audio.addEventListener("waiting", () => setStatus("seeking"), { signal });
   audio.addEventListener("playing", () => {
     clearTimeout(connectTimeoutId);
+    audioConfirmedPlaying = true;
     setStatus("playing");
     startNowPlaying(state.stations[state.currentIndex]);
   }, { signal });
@@ -588,11 +613,9 @@ function handleStreamFailure(url) {
   clearTimeout(connectTimeoutId);
   if (usingCors) {
     // Most streams don't send CORS headers. Retry once without it so
-    // playback can still succeed. Without CORS the analyser is guaranteed to
-    // read silence, so skip straight to the simulated fallback — no point
-    // burning another probe window on a result we already know.
+    // playback can still succeed — the visualizer stays on the seeking wave
+    // either way until audio is actually confirmed playing.
     usingCors = false;
-    if (analyser) visualizerMode = "fake";
     loadStream(url);
     return;
   }
