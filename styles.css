@@ -135,7 +135,7 @@ button {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
 .display__status-group {
@@ -159,29 +159,28 @@ button {
 
 .display__status {
   flex: none;
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background: var(--text-muted);
 }
 
 .display__status-label {
   font-weight: 600;
-  font-size: 0.875rem;
   color: var(--text-muted);
 }
 
-body[data-status="playing"] .display__status,
-body[data-status="connecting"] .display__status {
+/* Accent is reserved for confirmed live audio — seeking uses the default
+   text-muted styling above, so only the pulse animation marks it as active. */
+body[data-status="playing"] .display__status {
   background: var(--accent);
 }
 
-body[data-status="playing"] .display__status-label,
-body[data-status="connecting"] .display__status-label {
+body[data-status="playing"] .display__status-label {
   color: var(--accent);
 }
 
-body[data-status="connecting"] .display__status {
+body[data-status="seeking"] .display__status {
   animation: pulse 1s ease-in-out infinite;
 }
 
