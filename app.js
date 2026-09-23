@@ -52,6 +52,8 @@ const STATUS_LABELS = {
   error: "Signal Lost",
 };
 
+const BASE_TITLE = document.title; // whatever's in index.html's <title> — read once so the two can't drift
+
 // Fetches for stations that opt in via a `nowPlaying` block in stations.json
 // (see startNowPlaying() below). Every provider normalizes to
 // { raw, artist, track }: `raw` is always the display string, `artist`/
@@ -823,6 +825,20 @@ function render() {
   state.playing ? startVisualizer() : stopVisualizer();
 
   updateMediaSessionState(station);
+  updateDocumentTitle(station);
+}
+
+// Lets the tab be told apart from others (and checked at a glance without
+// switching to it) while backgrounded — reuses STATUS_LABELS so the title
+// stays consistent with what's already shown in the UI.
+function updateDocumentTitle(station) {
+  if (state.status === "playing" && station) {
+    document.title = `▶ ${station.title} — ${BASE_TITLE}`;
+  } else if (state.status === "seeking" || state.status === "error") {
+    document.title = `${STATUS_LABELS[state.status]} — ${BASE_TITLE}`;
+  } else {
+    document.title = BASE_TITLE;
+  }
 }
 
 function updateMediaSessionState(station) {
