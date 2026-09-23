@@ -85,6 +85,12 @@ const els = {
   visualizer: document.getElementById("visualizer"),
   nowPlaying: document.getElementById("now-playing"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
+  metaThemeColor: document.getElementById("meta-theme-color"),
+};
+
+const THEME_COLORS = {
+  light: "hsl(16, 10%, 84%)", // keep in sync with --bg under :root in styles.css
+  dark: "hsl(16, 10%, 6%)", // keep in sync with --bg under html[data-theme="dark"] in styles.css
 };
 
 const COPIED_LABEL_MS = 1000; // how long the Copy button shows "Copied" before reverting
@@ -127,6 +133,7 @@ let seekDirection = 1; // 1 = forward (next), -1 = backward (previous)
 let activeAudio = audio; // whichever element (audio or audioPlain) the current station is loaded into
 
 init();
+registerServiceWorker();
 
 async function init() {
   loadThemePreference();
@@ -153,6 +160,19 @@ async function init() {
   bindMediaSession();
   bindKeyboardShortcuts();
   render();
+
+  // Real "the app is ready" signal for the loading screen (only ever visible
+  // standalone — see .splash in styles.css) rather than a guessed timeout.
+  document.body.classList.add("is-ready");
+}
+
+// Feature-detected, registered after load so it doesn't compete with the
+// initial page load for resources. See sw.js for the caching strategy.
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
 }
 
 function getStationIndexFromUrl() {
@@ -797,6 +817,7 @@ function applyTheme() {
         : "light"
       : state.theme;
   document.documentElement.dataset.theme = effective;
+  if (els.metaThemeColor) els.metaThemeColor.content = THEME_COLORS[effective];
   renderThemeButtons();
 }
 

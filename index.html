@@ -25,12 +25,26 @@
 <link rel="icon" href="art/favicon-64.png" sizes="64x64" type="image/png">
 <link rel="icon" href="art/favicon-256.png" sizes="256x256" type="image/png">
 <link rel="apple-touch-icon" href="art/favicon-256.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="hsl(16, 10%, 84%)" id="meta-theme-color">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="radioghost">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- Only ever visible when launched standalone (installed to a home
+     screen) — see the @media (display-mode: standalone) gate in
+     styles.css. Fades out once init() finishes, via body.is-ready. -->
+<div class="splash" id="splash" aria-hidden="true">
+  <img class="splash__logo" src="art/favicon-256.png" width="96" height="96" alt="">
+  <span class="splash__name">radioghost</span>
+</div>
+
 <main class="radio" id="radio">
 
   <!-- Speaker grille: dots.svg, 350x97. To change the grille, just swap that file. -->

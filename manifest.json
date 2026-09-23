@@ -1,0 +1,13 @@
+{
+  "name": "radioghost",
+  "short_name": "radioghost",
+  "description": "My personal favourite radio stations — ambient, dub, and underground radio streamed live from Berlin, Bristol, Rotterdam, and beyond.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "hsl(16, 10%, 84%)",
+  "theme_color": "hsl(16, 10%, 84%)",
+  "icons": [
+    { "src": "art/favicon-256.png", "sizes": "256x256", "type": "image/png" }
+  ]
+}
