@@ -313,6 +313,7 @@ body[data-status="seeking"] .display__status {
   color: var(--text);
   border-radius: var(--radius-sm);
   cursor: pointer;
+  touch-action: manipulation;
   transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 }
 
