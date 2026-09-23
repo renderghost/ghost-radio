@@ -48,9 +48,12 @@ html[data-theme="dark"] {
 :root {
   /* Visualizer: controls how tall bars can get and how gently they ease
      between values. --viz-max-height/--viz-min-height are mirrored as
-     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them. */
+     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them.
+     --viz-min-scale is --viz-min-height / --viz-max-height (CSS can't divide
+     two lengths in calc()) — mirrored as VIZ_MIN_SCALE in app.js. */
   --viz-max-height: 128px;
   --viz-min-height: 2px;
+  --viz-min-scale: 0.0156;
   --viz-duration: 130ms;
   --viz-easing: cubic-bezier(.24, 1, .38, 1);
 }
@@ -229,10 +232,13 @@ body[data-status="seeking"] .display__status {
 .display__visualizer-bar {
   flex: 1 1 0;
   min-width: 0;
-  height: var(--viz-min-height);
+  height: var(--viz-max-height);
+  transform-origin: bottom;
+  transform: scaleY(var(--viz-min-scale));
   background: var(--border);
   border-radius: 1px;
-  transition: height var(--viz-duration) var(--viz-easing);
+  transition: transform var(--viz-duration) var(--viz-easing);
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -43,6 +43,8 @@ const VISUALIZER = {
   seekingWaveAmplitude: 0.38, // how far above/below baseline the seeking wave swings (0-1)
 };
 
+const VIZ_MIN_SCALE = VISUALIZER.minHeightPx / VISUALIZER.maxHeightPx; // keep in sync with --viz-min-scale in styles.css
+
 const STATUS_LABELS = {
   idle: "Off Air",
   seeking: "Seeking",
@@ -188,6 +190,12 @@ function bindEvents() {
   els.btnNext.addEventListener("click", () => changeStation(1));
   els.btnCopy.addEventListener("click", copyShareUrl);
 
+  // Only the visualizer's rAF loop pauses while the tab is hidden — audio
+  // playback is untouched. See startVisualizer()'s document.hidden guard.
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && state.playing) startVisualizer();
+  });
+
   els.themeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
@@ -313,6 +321,9 @@ function startVisualizer() {
   if (audioCtx && audioCtx.state === "suspended") {
     audioCtx.resume().catch(() => {});
   }
+  // Don't spend a rAF loop drawing bars nobody can see — the visibilitychange
+  // listener in bindEvents() calls this again once the tab is visible.
+  if (document.hidden) return;
   if (visualizerFrame) return;
   runVisualizerFrame();
 }
@@ -323,7 +334,7 @@ function stopVisualizer() {
     visualizerFrame = null;
   }
   visualizerMode = "idle";
-  visualizerBars.forEach((bar) => setBarHeight(bar, 0));
+  visualizerBars.forEach((bar) => setBarLevel(bar, 0));
 }
 
 function runVisualizerFrame(timestamp) {
@@ -382,7 +393,7 @@ function tickSeekingVisualizer(timestampMs) {
   visualizerBars.forEach((bar, i) => {
     const phase = (i / n) * VISUALIZER.seekingWaveCycles * 2 * Math.PI - t * VISUALIZER.seekingWaveSpeed;
     const level = VISUALIZER.seekingWaveBaseline + VISUALIZER.seekingWaveAmplitude * Math.sin(phase);
-    setBarHeight(bar, level);
+    setBarLevel(bar, level);
   });
 }
 
@@ -391,7 +402,7 @@ function renderRealLevels() {
     const [start, end] = bandRanges[i];
     let sum = 0;
     for (let b = start; b < end; b++) sum += freqData[b];
-    setBarHeight(bar, sum / (end - start) / 255);
+    setBarLevel(bar, sum / (end - start) / 255);
   });
 }
 
@@ -404,15 +415,16 @@ function tickFakeVisualizer() {
   visualizerBars.forEach((bar, i) => {
     const dome = Math.sin(((i + 0.5) / n) * Math.PI);
     const jitter = 0.55 + Math.random() * 0.45;
-    setBarHeight(bar, clamp(dome * fakeEnergy * jitter, 0, 1));
+    setBarLevel(bar, clamp(dome * fakeEnergy * jitter, 0, 1));
   });
 }
 
-function setBarHeight(bar, level) {
-  const px = Math.round(
-    VISUALIZER.minHeightPx + clamp(level, 0, 1) * (VISUALIZER.maxHeightPx - VISUALIZER.minHeightPx)
-  );
-  bar.style.height = `${px}px`;
+// Writes transform: scaleY() rather than height — a layout property — so the
+// browser can animate this on the compositor thread instead of reflowing the
+// page every frame for as long as a station plays.
+function setBarLevel(bar, level) {
+  const scale = VIZ_MIN_SCALE + clamp(level, 0, 1) * (1 - VIZ_MIN_SCALE);
+  bar.style.transform = `scaleY(${scale})`;
 }
 
 function clamp(value, min, max) {
