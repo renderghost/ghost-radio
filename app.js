@@ -160,10 +160,6 @@ async function init() {
   bindMediaSession();
   bindKeyboardShortcuts();
   render();
-
-  // Real "the app is ready" signal for the loading screen (only ever visible
-  // standalone — see .splash in styles.css) rather than a guessed timeout.
-  document.body.classList.add("is-ready");
 }
 
 // Feature-detected, registered after load so it doesn't compete with the
