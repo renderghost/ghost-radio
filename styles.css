@@ -88,54 +88,6 @@ button {
   font-family: inherit;
 }
 
-/* Loading screen: only ever rendered when launched standalone (installed to
-   a home screen) — @media (display-mode: standalone) is what decides that,
-   so there's no JS race deciding whether to show it. Outside that mode it's
-   plain `display: none`, inert. Fades out via body.is-ready once init()
-   finishes — see app.js. */
-.splash {
-  display: none;
-}
-
-@media (display-mode: standalone) {
-  .splash {
-    position: fixed;
-    inset: 0;
-    z-index: 999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: var(--space-md);
-    background: var(--bg);
-    opacity: 1;
-    transition: opacity .25s ease;
-  }
-
-  body.is-ready .splash {
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-.splash__logo {
-  display: block;
-  width: 96px;
-  height: 96px;
-}
-
-.splash__name {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--text);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .splash {
-    transition: none;
-  }
-}
-
 .radio {
   width: min(384px, 100%);
   display: grid;
