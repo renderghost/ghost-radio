@@ -9,6 +9,7 @@ const state = {
   playing: false,
   status: "idle", // idle | seeking | playing | error
   theme: "system", // light | dark | system
+  pickerOpen: false,
 };
 
 const audio = document.getElementById("audio");
@@ -86,6 +87,8 @@ const els = {
   nowPlaying: document.getElementById("now-playing"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
   metaThemeColor: document.getElementById("meta-theme-color"),
+  display: document.getElementById("display"),
+  stationPicker: document.getElementById("station-picker"),
 };
 
 const THEME_COLORS = {
@@ -156,6 +159,7 @@ async function init() {
   updateUrl();
 
   buildVisualizer();
+  buildStationPicker();
   bindEvents();
   bindMediaSession();
   bindKeyboardShortcuts();
@@ -207,6 +211,23 @@ function bindEvents() {
   els.btnPrev.addEventListener("click", () => changeStation(-1));
   els.btnNext.addEventListener("click", () => changeStation(1));
   els.btnCopy.addEventListener("click", copyShareUrl);
+
+  els.stationName.addEventListener("click", togglePicker);
+
+  // Single delegated listener rather than one per row.
+  els.stationPicker.addEventListener("click", (e) => {
+    const item = e.target.closest(".station-picker__item");
+    if (item) selectStation(Number(item.dataset.index));
+  });
+
+  // Closes on any click outside the list — the station-name button (the
+  // trigger) is excluded so its own click handler above can toggle without
+  // this immediately closing what it just opened.
+  document.addEventListener("click", (e) => {
+    if (!state.pickerOpen) return;
+    if (e.target.closest("#station-picker") || e.target.closest("#station-name")) return;
+    closePicker();
+  });
 
   // Only the visualizer's rAF loop pauses while the tab is hidden — audio
   // playback is untouched. See startVisualizer()'s document.hidden guard.
@@ -276,6 +297,18 @@ function bindKeyboardShortcuts() {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [contenteditable]")) return;
 
+    // While the picker is open, only Escape is handled here — Tab/Enter/
+    // Space navigating and activating the list buttons is native browser
+    // behavior, and the transport shortcuts below would otherwise fight it
+    // (e.g. Space would both activate a focused row AND toggle playback).
+    if (state.pickerOpen) {
+      if (e.code === "Escape") {
+        e.preventDefault();
+        closePicker();
+      }
+      return;
+    }
+
     switch (e.code) {
       case "Space":
         e.preventDefault();
@@ -301,6 +334,62 @@ function buildVisualizer() {
     els.visualizer.appendChild(bar);
     return bar;
   });
+}
+
+// Built once from state.stations; only ever toggled visible/hidden after
+// this, not rebuilt — see the .display.is-picker-open rules in styles.css.
+function buildStationPicker() {
+  els.stationPicker.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+  state.stations.forEach((station, index) => {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = "station-picker__item";
+    item.role = "option";
+    item.dataset.index = String(index);
+
+    const name = document.createElement("span");
+    name.className = "station-picker__name";
+    name.textContent = station.title;
+    item.appendChild(name);
+
+    if (station.location) {
+      const location = document.createElement("span");
+      location.className = "station-picker__location";
+      location.textContent = station.location;
+      item.appendChild(location);
+    }
+
+    fragment.appendChild(item);
+  });
+  els.stationPicker.appendChild(fragment);
+}
+
+function togglePicker() {
+  state.pickerOpen ? closePicker() : openPicker();
+}
+
+function openPicker() {
+  if (state.stations.length === 0) return;
+  state.pickerOpen = true;
+  render();
+
+  // Land keyboard focus near the current station rather than at the top —
+  // falls back to the first row if the current station isn't in the list.
+  const current = els.stationPicker.querySelector(`[data-index="${state.currentIndex}"]`);
+  (current || els.stationPicker.firstElementChild)?.focus();
+}
+
+function closePicker() {
+  state.pickerOpen = false;
+  render();
+  els.stationName.focus();
+}
+
+function selectStation(index) {
+  state.pickerOpen = false;
+  state.playing = true;
+  beginSeeking(index, 1);
 }
 
 function ensureAudioGraph() {
@@ -835,8 +924,14 @@ function render() {
   els.btnPlay.classList.toggle("is-playing", state.playing);
   els.btnPlay.setAttribute("aria-label", state.playing ? "Stop" : "Play");
 
-  [els.btnPlay, els.btnPrev, els.btnNext].forEach((btn) => {
+  [els.btnPlay, els.btnPrev, els.btnNext, els.stationName].forEach((btn) => {
     btn.disabled = !hasStations;
+  });
+
+  els.display.classList.toggle("is-picker-open", state.pickerOpen);
+  els.stationName.setAttribute("aria-expanded", String(state.pickerOpen));
+  els.stationPicker.querySelectorAll(".station-picker__item").forEach((item) => {
+    item.setAttribute("aria-selected", String(Number(item.dataset.index) === state.currentIndex));
   });
 
   state.playing ? startVisualizer() : stopVisualizer();

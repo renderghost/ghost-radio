@@ -201,12 +201,27 @@ body[data-status="seeking"] .display__status {
 }
 
 .display__name {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  font-family: inherit;
   font-size: clamp(1.5rem, 4.2vw, 1.25rem);
   line-height: 1.25;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.display__name:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .display__name.is-empty {
@@ -309,6 +324,80 @@ body[data-status="seeking"] .display__status {
     overflow: hidden;
     text-overflow: ellipsis;
   }
+}
+
+/* Station picker: clicking .display__name (the station name button) toggles
+   state.pickerOpen (see app.js), which replaces the status row/name/
+   visualizer/now-playing ticker with a scrolling list of every station.
+   Open state gets a fixed (not min-) height matching the closed state's
+   natural rendered height — a flex:1 child can't scroll within a container
+   whose height is unbounded, it just grows the container to fit instead,
+   so this needs a real ceiling, not just a floor. */
+.display {
+  overflow: hidden;
+}
+
+.display.is-picker-open {
+  height: 278px;
+}
+
+.display.is-picker-open .display__content,
+.display.is-picker-open .display__visualizer,
+.display.is-picker-open .display__now-playing {
+  display: none;
+}
+
+.station-picker {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0; /* lets this flex item shrink so overflow-y can actually scroll instead of growing the card */
+  overflow-y: auto;
+}
+
+.display.is-picker-open .station-picker {
+  display: flex;
+}
+
+.station-picker__item {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: none;
+  padding: var(--space-sm) var(--space-md);
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.station-picker__item:hover,
+.station-picker__item:focus-visible {
+  background: var(--border);
+}
+
+.station-picker__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.station-picker__name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.station-picker__location {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Buttons, shared */

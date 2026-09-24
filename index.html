@@ -41,7 +41,7 @@
   <!-- Speaker grille: dots.svg, 350x97. To change the grille, just swap that file. -->
   <img class="speaker" src="art/dots.svg" alt="" aria-hidden="true" width="350" height="97">
 
-  <section class="display">
+  <section class="display" id="display">
     <div class="display__content">
       <div class="display__status-row">
         <div class="display__status-group">
@@ -59,7 +59,7 @@
         </button>
       </div>
       <div class="display__text">
-        <div class="display__name" id="station-name">No Signal</div>
+        <button class="display__name" id="station-name" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="station-picker">No Signal</button>
         <div class="display__meta-row">
           <span class="display__meta" id="display-meta"></span>
           <span class="display__counter" id="station-counter"></span>
@@ -68,6 +68,7 @@
     </div>
     <div class="display__visualizer" id="visualizer" aria-hidden="true"></div>
     <div class="display__now-playing" id="now-playing" hidden></div>
+    <div class="station-picker" id="station-picker" role="listbox" aria-label="Stations"></div>
   </section>
 
   <section class="transport">
