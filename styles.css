@@ -268,8 +268,14 @@ body[data-status="seeking"] .display__status {
   bottom: 0;
   overflow: hidden;
   padding: var(--space-md);
+  font-size: 1rem;
   font-weight: 400;
   color: var(--text);
+  /* Without this, mobile Safari's automatic text-size inflation can bump this
+     up to a larger size once the ticker's nowrap content overflows its
+     container — the size then looks inconsistent depending on track length. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .display__now-playing-track {

@@ -568,7 +568,7 @@ function stopNowPlaying() {
 }
 
 function renderNowPlaying(result) {
-  const raw = result?.raw?.trim();
+  const raw = result?.raw ? cleanNowPlayingText(result.raw) : "";
   if (!els.nowPlaying) return;
 
   if (!raw) {
@@ -607,6 +607,66 @@ function updateNowPlayingTicker() {
   const overflowing = firstCopy.scrollWidth > els.nowPlaying.clientWidth;
   firstCopy.style.width = "";
   track.classList.toggle("is-ticking", overflowing);
+}
+
+// Now-playing feeds are a mixed bag: some upstream sources mis-decode UTF-8
+// as Latin-1 before it ever reaches their API (so we receive already-corrupted
+// text like "BeyoncÃ©" for "Beyoncé"), some leak literal backslash-escaped
+// quotes or HTML entities from whatever templating produced the metadata
+// (e.g. Icecast source clients that pass "title='...'" and never strip the
+// quotes, or "&amp;" left undecoded), and others sprinkle in stray control or
+// zero-width characters. None of that survives a straight display, so clean
+// it all up before the text is shown.
+function cleanNowPlayingText(str) {
+  let cleaned = repairMojibake(str)
+    .replace(/\\(['"])/g, "$1")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f�​-‏﻿]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  cleaned = decodeHtmlEntities(cleaned);
+  cleaned = stripWrappingQuotes(cleaned);
+  return cleaned;
+}
+
+const HTML_ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+
+function decodeHtmlEntities(str) {
+  return str.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity) => {
+    if (entity[0] === "#") {
+      const isHex = entity[1].toLowerCase() === "x";
+      const code = parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+      return Number.isNaN(code) ? match : String.fromCodePoint(code);
+    }
+    return HTML_ENTITIES[entity.toLowerCase()] ?? match;
+  });
+}
+
+// Some sources (Icecast title fields especially) include the whole string
+// wrapped in a single matching pair of quotes as a literal artifact of how
+// the source client formatted the metadata, e.g. "'Artist - Track (1995)'".
+function stripWrappingQuotes(str) {
+  if (str.length < 2) return str;
+  const first = str[0];
+  if ((first === "'" || first === '"') && str[str.length - 1] === first) {
+    return str.slice(1, -1).trim();
+  }
+  return str;
+}
+
+// Detects the classic "UTF-8 bytes read as Latin-1" mojibake pattern (runs of
+// Ã/Â/â-prefixed characters) and reverses it by reinterpreting the string's
+// char codes as raw bytes and re-decoding them as UTF-8. Only attempted when
+// every character is in the Latin-1 range, since that's a precondition for
+// this kind of corruption — mixed content means it isn't this bug.
+function repairMojibake(str) {
+  if (!/[ÂÃâ][\u0080-¿]/.test(str)) return str;
+  if (!/^[\u0000-ÿ]*$/.test(str)) return str;
+  try {
+    const bytes = Uint8Array.from(str, (ch) => ch.charCodeAt(0));
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return str;
+  }
 }
 
 function escapeHtml(str) {
