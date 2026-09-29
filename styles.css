@@ -170,7 +170,7 @@ button {
 }
 
 .display__status-label {
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -269,7 +269,6 @@ body[data-status="seeking"] .display__status {
   overflow: hidden;
   padding: var(--space-md);
   font-size: 1rem;
-  font-weight: 400;
   color: var(--text);
   /* Without this, mobile Safari's automatic text-size inflation can bump this
      up to a larger size once the ticker's nowrap content overflows its
@@ -441,8 +440,6 @@ body[data-status="seeking"] .display__status {
   border-color: transparent;
   background: var(--bg);
   padding: var(--space-zero);
-  font-size: .75rem;
-  font-weight: 600;
   color: var(--text-muted);
 }
 
