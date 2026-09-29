@@ -7,6 +7,7 @@ const state = {
   stations: [],
   currentIndex: 0,
   playing: false,
+  everPlayed: false, // has the user ever started playback this session? — see updateMediaSessionState()
   status: "idle", // idle | seeking | playing | error
   theme: "system", // light | dark | system
   pickerOpen: false,
@@ -232,12 +233,30 @@ function bindEvents() {
   // Only the visualizer's rAF loop pauses while the tab is hidden — audio
   // playback is untouched. See startVisualizer()'s document.hidden guard.
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && state.playing) startVisualizer();
+    if (document.hidden) return;
+    if (state.playing) startVisualizer();
+    resyncMediaSession();
   });
+
+  // Covers the bfcache-restore case (e.g. Safari's back/forward swipe, or
+  // returning to a backgrounded tab that got fully suspended) — visibility
+  // can go straight from hidden to visible without a visibilitychange event
+  // firing on the way back in.
+  window.addEventListener("pageshow", resyncMediaSession);
 
   els.themeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
   });
+}
+
+// iOS is known to drop or ignore the media session while a page is
+// backgrounded (WebKit bug 261858), sometimes leaving the lock screen/
+// Control Center widget unresponsive until the page is reactivated —
+// re-asserting the handlers and current state here is a best-effort recovery
+// for whenever that happens.
+function resyncMediaSession() {
+  bindMediaSession();
+  updateMediaSessionState(state.stations[state.currentIndex]);
 }
 
 let copiedLabelTimeoutId = null;
@@ -272,6 +291,17 @@ async function copyShareUrl() {
   }, COPIED_LABEL_MS);
 }
 
+// Deliberately never registers seekbackward/seekforward: this is a 3-button
+// radio player (play/pause, previous station, next station) playing
+// indefinite live streams, not seekable tracks. iOS shows either the
+// previous/next pair or the ±10s seek pair on its lock screen/Control Center
+// widget — never both — so adding seek handlers would silently replace
+// station-skip with skip-by-10-seconds there.
+//
+// Idempotent and safe to call repeatedly — see the visibilitychange/pageshow
+// listeners in bindEvents(), which re-call this to recover from iOS
+// suspending/dropping the media session while the page is backgrounded
+// (WebKit bug 261858: https://bugs.webkit.org/show_bug.cgi?id=261858).
 function bindMediaSession() {
   if (!("mediaSession" in navigator)) return;
 
@@ -796,6 +826,7 @@ function play() {
 // a fresh seek; handleStreamFailure() calls advanceSeek() to continue one
 // already in progress, without resetting where "a full lap" started.
 function beginSeeking(startIndex, direction) {
+  state.everPlayed = true;
   seekStartIndex = startIndex;
   seekDirection = direction;
   tuneToStation(startIndex);
@@ -1016,15 +1047,39 @@ function updateDocumentTitle(station) {
 function updateMediaSessionState(station) {
   if (!("mediaSession" in navigator)) return;
 
-  navigator.mediaSession.metadata = station
-    ? new MediaMetadata({
-        title: station.title,
-        artist: station.location ?? "",
-        album: "Ghost Radio",
-      })
-    : null;
+  // Nothing has ever been played this session — leave the OS with no Now
+  // Playing session at all, rather than a phantom "paused: <first station>"
+  // one nobody asked for.
+  if (!state.everPlayed || !station) {
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = "none";
+    try {
+      navigator.mediaSession.setPositionState();
+    } catch {
+      // Not supported — nothing to clear.
+    }
+    return;
+  }
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: station.title,
+    artist: station.location ?? "",
+    album: "Ghost Radio",
+    artwork: [{ src: "art/favicon-256.png", sizes: "256x256", type: "image/png" }],
+  });
 
   navigator.mediaSession.playbackState = state.playing ? "playing" : "paused";
+
+  // Every station here is an indefinite live stream, so duration is
+  // Infinity (spec-legal, and the documented way to signal "no scrubber" —
+  // see https://developer.mozilla.org/en-US/docs/Web/API/MediaSession/setPositionState).
+  // playbackRate can't be 0 per spec even while paused; `playbackState`
+  // above is what tells the OS playback isn't actually advancing.
+  try {
+    navigator.mediaSession.setPositionState({ duration: Infinity, position: 0, playbackRate: 1 });
+  } catch {
+    // Not supported by this browser — the widget just won't show a scrubber.
+  }
 }
 
 function renderThemeButtons() {
