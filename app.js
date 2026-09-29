@@ -90,7 +90,21 @@ const els = {
   metaThemeColor: document.getElementById("meta-theme-color"),
   display: document.getElementById("display"),
   stationPicker: document.getElementById("station-picker"),
+  faviconLinks: [
+    document.getElementById("favicon-16"),
+    document.getElementById("favicon-32"),
+    document.getElementById("favicon-64"),
+  ].filter(Boolean),
 };
+
+// The tab favicon swaps to an accent-colored "-active" variant while a
+// station is actually live — mirrors the accent-colored .display__status dot
+// in the UI itself. Only the sizes browsers actually use as a tab icon get a
+// variant (see the favicon-16/32/64 ids above); the 256px one is
+// install-time-fixed (apple-touch-icon/manifest) and can't change at
+// runtime, so it's excluded. Default hrefs are captured up front so the
+// "-active" swap can be derived rather than duplicating each path.
+const FAVICON_DEFAULT_HREFS = new Map(els.faviconLinks.map((link) => [link, link.getAttribute("href")]));
 
 const THEME_COLORS = {
   light: "hsl(16, 10%, 84%)", // keep in sync with --bg under :root in styles.css
@@ -1029,6 +1043,15 @@ function render() {
 
   updateMediaSessionState(station);
   updateDocumentTitle(station);
+  updateFavicon();
+}
+
+function updateFavicon() {
+  const active = state.status === "playing";
+  els.faviconLinks.forEach((link) => {
+    const defaultHref = FAVICON_DEFAULT_HREFS.get(link);
+    link.href = active ? defaultHref.replace("favicon-", "favicon-active-") : defaultHref;
+  });
 }
 
 // Lets the tab be told apart from others (and checked at a glance without
