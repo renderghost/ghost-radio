@@ -1059,7 +1059,7 @@ function updateFavicon() {
 // stays consistent with what's already shown in the UI.
 function updateDocumentTitle(station) {
   if (state.status === "playing" && station) {
-    document.title = `▶ ${station.title} — ${BASE_TITLE}`;
+    document.title = `${station.title} — ${BASE_TITLE}`;
   } else if (state.status === "seeking" || state.status === "error") {
     document.title = `${STATUS_LABELS[state.status]} — ${BASE_TITLE}`;
   } else {
