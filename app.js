@@ -33,8 +33,6 @@ const audioPlain = document.getElementById("audio-plain");
 // leaving the bars dead flat.
 const VISUALIZER = {
   bandCount: 128, // number of bars
-  maxHeightPx: 128, // keep in sync with --viz-max-height in styles.css
-  minHeightPx: 2, // keep in sync with --viz-min-height in styles.css
   fftSize: 2048, // analyser resolution (frequencyBinCount = fftSize / 2)
   smoothing: 0.8, // AnalyserNode.smoothingTimeConstant (0-1, higher = gentler)
   silentFramesBeforeFallback: 90, // ~1.5s at 60fps of all-zero data before giving up on real analysis
@@ -45,7 +43,8 @@ const VISUALIZER = {
   seekingWaveAmplitude: 0.38, // how far above/below baseline the seeking wave swings (0-1)
 };
 
-const VIZ_MIN_SCALE = VISUALIZER.minHeightPx / VISUALIZER.maxHeightPx; // keep in sync with --viz-min-scale in styles.css
+// Resting bar height as a fraction of the visualizer's (fluid) height. The single source of truth is --viz-min-scale in styles.css.
+const VIZ_MIN_SCALE = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--viz-min-scale"));
 
 const STATUS_LABELS = {
   idle: "Off Air",
@@ -76,19 +75,21 @@ const NOW_PLAYING_PROVIDERS = {
 
 const els = {
   statusLabel: document.getElementById("status-label"),
-  stationCounter: document.getElementById("station-counter"),
   stationName: document.getElementById("station-name"),
+  stationSelect: document.getElementById("station-select"),
   displayMeta: document.getElementById("display-meta"),
   btnPlay: document.getElementById("btn-play"),
   btnPrev: document.getElementById("btn-prev"),
   btnNext: document.getElementById("btn-next"),
+  btnRandom: document.getElementById("btn-random"),
   btnCopy: document.getElementById("btn-copy"),
   btnCopyLabel: document.getElementById("btn-copy-label"),
   visualizer: document.getElementById("visualizer"),
   nowPlaying: document.getElementById("now-playing"),
+  nowPlayingViewport: document.getElementById("now-playing-viewport"),
+  content: document.getElementById("content"),
   themeButtons: document.querySelectorAll("[data-theme-choice]"),
   metaThemeColor: document.getElementById("meta-theme-color"),
-  display: document.getElementById("display"),
   stationPicker: document.getElementById("station-picker"),
   faviconLinks: [
     document.getElementById("favicon-16"),
@@ -105,11 +106,6 @@ const els = {
 // runtime, so it's excluded. Default hrefs are captured up front so the
 // "-active" swap can be derived rather than duplicating each path.
 const FAVICON_DEFAULT_HREFS = new Map(els.faviconLinks.map((link) => [link, link.getAttribute("href")]));
-
-const THEME_COLORS = {
-  light: "hsl(16, 10%, 84%)", // keep in sync with --bg under :root in styles.css
-  dark: "hsl(16, 10%, 6%)", // keep in sync with --bg under html[data-theme="dark"] in styles.css
-};
 
 const COPIED_LABEL_MS = 1000; // how long the Copy button shows "Copied" before reverting
 
@@ -225,22 +221,23 @@ function bindEvents() {
   els.btnPlay.addEventListener("click", togglePlay);
   els.btnPrev.addEventListener("click", () => changeStation(-1));
   els.btnNext.addEventListener("click", () => changeStation(1));
+  els.btnRandom.addEventListener("click", randomStation);
   els.btnCopy.addEventListener("click", copyShareUrl);
 
-  els.stationName.addEventListener("click", togglePicker);
+  els.stationSelect.addEventListener("click", togglePicker);
 
   // Single delegated listener rather than one per row.
   els.stationPicker.addEventListener("click", (e) => {
-    const item = e.target.closest(".station-picker__item");
+    const item = e.target.closest(".station-list__item");
     if (item) selectStation(Number(item.dataset.index));
   });
 
-  // Closes on any click outside the list — the station-name button (the
+  // Closes on any click outside the list — the station button (the
   // trigger) is excluded so its own click handler above can toggle without
   // this immediately closing what it just opened.
   document.addEventListener("click", (e) => {
     if (!state.pickerOpen) return;
-    if (e.target.closest("#station-picker") || e.target.closest("#station-name")) return;
+    if (e.target.closest("#station-picker") || e.target.closest("#station-select")) return;
     closePicker();
   });
 
@@ -337,19 +334,17 @@ function bindMediaSession() {
 
 function bindKeyboardShortcuts() {
   document.addEventListener("keydown", (e) => {
-    if (e.repeat) return; // ignore OS key-repeat from a held key
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target instanceof HTMLElement && e.target.closest("input, textarea, [contenteditable]")) return;
 
-    // While the picker is open, only Escape is handled here — Tab/Enter/
-    // Space navigating and activating the list buttons is native browser
-    // behavior, and the transport shortcuts below would otherwise fight it
-    // (e.g. Space would both activate a focused row AND toggle playback).
-    if (state.pickerOpen) {
-      if (e.code === "Escape") {
-        e.preventDefault();
-        closePicker();
-      }
+    // List navigation stays repeatable (holding ↓ scrolls through rows). The
+    // transport shortcuts below ignore OS key-repeat.
+    if (state.pickerOpen && handleStationListKey(e)) return;
+    if (e.repeat) {
+      // A held key must not keep "pressing" whichever button has focus: Enter
+      // activates on every repeat, and an un-cancelled repeat keydown also
+      // arms Space's click-on-release.
+      if (e.code === "Space" || e.code === "Enter" || e.code === "NumpadEnter") e.preventDefault();
       return;
     }
 
@@ -361,13 +356,66 @@ function bindKeyboardShortcuts() {
       case "ArrowLeft":
         e.preventDefault();
         changeStation(-1);
+        if (state.pickerOpen) scrollCurrentStationIntoView();
         break;
       case "ArrowRight":
         e.preventDefault();
         changeStation(1);
+        if (state.pickerOpen) scrollCurrentStationIntoView();
+        break;
+      case "KeyR":
+        e.preventDefault();
+        randomStation();
+        if (state.pickerOpen) scrollCurrentStationIntoView();
         break;
     }
   });
+
+  // A focused <button> activates on Space's *keyup* in Chromium/WebKit. With
+  // the list open that would select the focused row on top of the play/stop
+  // toggle above, so cancel it here (keydown's preventDefault covers Firefox).
+  document.addEventListener("keyup", (e) => {
+    if (state.pickerOpen && e.code === "Space") e.preventDefault();
+  });
+}
+
+// Keys that only mean something while the station list is open. Space, ← and →
+// deliberately fall through (return false) to the transport shortcuts so the
+// media keys keep working with the GUI hidden; Enter and Tab stay native.
+function handleStationListKey(e) {
+  const rows = Array.from(els.stationPicker.querySelectorAll(".station-list__item"));
+  const focused = rows.indexOf(document.activeElement); // -1 when focus is somewhere else
+  const focusRow = (index) => {
+    e.preventDefault();
+    rows[clamp(index, 0, rows.length - 1)]?.focus();
+  };
+
+  switch (e.code) {
+    case "Escape":
+      e.preventDefault();
+      closePicker();
+      return true;
+    case "ArrowDown":
+      focusRow(focused === -1 ? state.currentIndex : focused + 1);
+      return true;
+    case "ArrowUp":
+      focusRow(focused === -1 ? state.currentIndex : focused - 1);
+      return true;
+    case "Home":
+      focusRow(0);
+      return true;
+    case "End":
+      focusRow(rows.length - 1);
+      return true;
+    default:
+      return false;
+  }
+}
+
+// Keeps the current station's row visible when ←/→ move through stations
+// while the list is open (block: "nearest" is a no-op when it already is).
+function scrollCurrentStationIntoView() {
+  els.stationPicker.querySelector(`[data-index="${state.currentIndex}"]`)?.scrollIntoView({ block: "nearest" });
 }
 
 function buildVisualizer() {
@@ -381,25 +429,25 @@ function buildVisualizer() {
 }
 
 // Built once from state.stations; only ever toggled visible/hidden after
-// this, not rebuilt — see the .display.is-picker-open rules in styles.css.
+// this, not rebuilt — see the .content[data-state="selector"] rules in styles.css.
 function buildStationPicker() {
   els.stationPicker.innerHTML = "";
   const fragment = document.createDocumentFragment();
   state.stations.forEach((station, index) => {
     const item = document.createElement("button");
     item.type = "button";
-    item.className = "station-picker__item";
+    item.className = "station-list__item";
     item.role = "option";
     item.dataset.index = String(index);
 
     const name = document.createElement("span");
-    name.className = "station-picker__name";
+    name.className = "station-list__name";
     name.textContent = station.title;
     item.appendChild(name);
 
     if (station.location) {
       const location = document.createElement("span");
-      location.className = "station-picker__location";
+      location.className = "station-list__location";
       location.textContent = station.location;
       item.appendChild(location);
     }
@@ -427,13 +475,15 @@ function openPicker() {
 function closePicker() {
   state.pickerOpen = false;
   render();
-  els.stationName.focus();
+  els.stationSelect.focus();
 }
 
 function selectStation(index) {
   state.pickerOpen = false;
   state.playing = true;
   beginSeeking(index, 1);
+  // The row that had focus is now hidden; put focus somewhere real.
+  els.stationSelect.focus();
 }
 
 function ensureAudioGraph() {
@@ -617,12 +667,12 @@ function renderNowPlaying(result) {
 
   if (!raw) {
     els.nowPlaying.hidden = true;
-    els.nowPlaying.innerHTML = "";
+    els.nowPlayingViewport.innerHTML = "";
     return;
   }
 
   els.nowPlaying.hidden = false;
-  els.nowPlaying.innerHTML = `
+  els.nowPlayingViewport.innerHTML = `
     <div class="display__now-playing-track">
       <span>${escapeHtml(raw)}</span>
       <span aria-hidden="true">${escapeHtml(raw)}</span>
@@ -640,7 +690,7 @@ function renderNowPlaying(result) {
 // container — short strings just sit still. Measured against the first
 // span's width, since the track holds two copies side by side for the loop.
 function updateNowPlayingTicker() {
-  const track = els.nowPlaying?.querySelector(".display__now-playing-track");
+  const track = els.nowPlayingViewport?.querySelector(".display__now-playing-track");
   const firstCopy = track?.querySelector("span");
   if (!track || !firstCopy) return;
   // Force the span to its natural (unshrunk) width for this measurement,
@@ -648,7 +698,7 @@ function updateNowPlayingTicker() {
   // has it flex-shrunk to fit — scrollWidth on a shrunk flex item isn't a
   // reliable read of the text's true intrinsic width.
   firstCopy.style.width = "max-content";
-  const overflowing = firstCopy.scrollWidth > els.nowPlaying.clientWidth;
+  const overflowing = firstCopy.scrollWidth > els.nowPlayingViewport.clientWidth;
   firstCopy.style.width = "";
   track.classList.toggle("is-ticking", overflowing);
 }
@@ -983,6 +1033,18 @@ function changeStation(delta) {
   beginSeeking(nextIndex, delta >= 0 ? 1 : -1);
 }
 
+// Jumps to a random station and plays it. Never the one already selected
+// (unless it's the only one): the draw is uniform over the *other* stations,
+// so the jump is 1..count-1 places ahead. If the pick turns out to be dead,
+// the seek carries on forward like Next does.
+function randomStation() {
+  const count = state.stations.length;
+  if (count === 0) return;
+  const jump = count > 1 ? 1 + Math.floor(Math.random() * (count - 1)) : 0;
+  state.playing = true;
+  beginSeeking((state.currentIndex + jump) % count, 1);
+}
+
 function setStatus(status) {
   state.status = status;
   render();
@@ -1007,7 +1069,8 @@ function applyTheme() {
         : "light"
       : state.theme;
   document.documentElement.dataset.theme = effective;
-  if (els.metaThemeColor) els.metaThemeColor.content = THEME_COLORS[effective];
+  // Read back from CSS so the browser chrome always matches --bg for the active theme.
+  if (els.metaThemeColor) els.metaThemeColor.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
   renderThemeButtons();
 }
 
@@ -1020,22 +1083,19 @@ function render() {
 
   els.displayMeta.textContent = station?.location ?? "";
   els.statusLabel.textContent = STATUS_LABELS[state.status];
-  els.stationCounter.textContent = hasStations
-    ? `${state.currentIndex + 1} of ${state.stations.length}`
-    : "";
 
   document.body.dataset.status = state.status;
 
-  els.btnPlay.classList.toggle("is-playing", state.playing);
+  els.btnPlay.classList.toggle("btn--accent", state.playing);
   els.btnPlay.setAttribute("aria-label", state.playing ? "Stop" : "Play");
 
-  [els.btnPlay, els.btnPrev, els.btnNext, els.stationName].forEach((btn) => {
+  [els.btnPlay, els.btnPrev, els.btnRandom, els.btnNext, els.stationSelect].forEach((btn) => {
     btn.disabled = !hasStations;
   });
 
-  els.display.classList.toggle("is-picker-open", state.pickerOpen);
-  els.stationName.setAttribute("aria-expanded", String(state.pickerOpen));
-  els.stationPicker.querySelectorAll(".station-picker__item").forEach((item) => {
+  els.content.dataset.state = state.pickerOpen ? "selector" : "player";
+  els.stationSelect.setAttribute("aria-expanded", String(state.pickerOpen));
+  els.stationPicker.querySelectorAll(".station-list__item").forEach((item) => {
     item.setAttribute("aria-selected", String(Number(item.dataset.index) === state.currentIndex));
   });
 

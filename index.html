@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>radioghost</title>
 <meta name="description" content="My personal favourite radio stations — ambient, dub, and underground radio streamed live from Berlin, Bristol, Rotterdam, and beyond.">
 
@@ -26,7 +26,7 @@
 <link rel="icon" href="art/favicon-256.png" sizes="256x256" type="image/png">
 <link rel="apple-touch-icon" href="art/favicon-256.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="hsl(16, 10%, 84%)" id="meta-theme-color">
+<meta name="theme-color" content="#ded9d7" id="meta-theme-color">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="radioghost">
@@ -41,65 +41,71 @@
   <!-- Speaker grille: dots.svg, 350x97. To change the grille, just swap that file. -->
   <img class="speaker" src="art/dots.svg" alt="" aria-hidden="true" width="350" height="97">
 
-  <section class="display" id="display">
-    <div class="display__content">
-      <div class="display__status-row">
-        <div class="display__status-group">
-          <span class="display__status" id="status-dot" aria-hidden="true"></span>
-          <span class="display__status-label" id="status-label">Live</span>
+  <!-- Content has two states (Figma: Player / StationSelector): the display + media controls, or the full-height station list. -->
+  <div class="content" id="content" data-state="player">
+    <section class="display" id="display">
+      <div class="display__station-info">
+        <div class="display__status">
+          <div class="display__status-group">
+            <span class="display__live-indicator" id="status-dot" aria-hidden="true"></span>
+            <span class="display__status-label" id="status-label">Off Air</span>
+          </div>
+          <button class="btn btn--copy" id="btn-copy" type="button" aria-label="Copy link to this station">
+            <span class="btn__label" id="btn-copy-label">Copy</span>
+            <span class="btn__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <rect x="8" y="8" width="12" height="12" rx="2"/>
+                <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
+              </svg>
+            </span>
+          </button>
         </div>
-        <button class="btn btn--copy" id="btn-copy" type="button" aria-label="Copy link to this station">
-          <span class="btn__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
-              <rect x="8" y="8" width="12" height="12" rx="2"/>
-              <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>
-            </svg>
-          </span>
-          <span class="btn__label" id="btn-copy-label">Copy</span>
+        <button class="btn display__select-station" id="station-select" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="station-picker">
+          <span class="display__station-name" id="station-name">No Signal</span>
+          <span class="display__station-location" id="display-meta"></span>
         </button>
       </div>
-      <div class="display__text">
-        <button class="display__name" id="station-name" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="station-picker">No Signal</button>
-        <div class="display__meta-row">
-          <span class="display__meta" id="display-meta"></span>
-          <span class="display__counter" id="station-counter"></span>
+      <div class="display__audio-info">
+        <div class="display__visualizer" id="visualizer" aria-hidden="true"></div>
+        <div class="display__now-playing" id="now-playing" hidden>
+          <div class="display__now-playing-viewport" id="now-playing-viewport"></div>
         </div>
       </div>
-    </div>
-    <div class="display__visualizer" id="visualizer" aria-hidden="true"></div>
-    <div class="display__now-playing" id="now-playing" hidden></div>
-    <div class="station-picker" id="station-picker" role="listbox" aria-label="Stations"></div>
-  </section>
+    </section>
 
-  <section class="transport">
-    <button class="btn btn--transport" id="btn-prev" type="button" aria-label="Previous station">
-      <span class="btn__icon btn__icon--mask btn__icon--transport-back" aria-hidden="true"></span>
-    </button>
-    <button class="btn btn--transport btn--play" id="btn-play" type="button" aria-label="Play">
-      <span class="btn__icon btn__icon--mask btn__icon--transport-play" aria-hidden="true"></span>
-    </button>
-    <button class="btn btn--transport" id="btn-next" type="button" aria-label="Next station">
-      <span class="btn__icon btn__icon--mask btn__icon--transport-forward" aria-hidden="true"></span>
-    </button>
-  </section>
+    <section class="media-controls" aria-label="Playback">
+      <button class="btn btn--media" id="btn-prev" type="button" aria-label="Previous station">
+        <span class="btn__icon btn__icon--mask btn__icon--transport-back" aria-hidden="true"></span>
+      </button>
+      <button class="btn btn--media" id="btn-play" type="button" aria-label="Play">
+        <span class="btn__icon btn__icon--mask btn__icon--transport-play" aria-hidden="true"></span>
+      </button>
+      <button class="btn btn--media" id="btn-random" type="button" aria-label="Random station">
+        <span class="btn__icon btn__icon--mask btn__icon--transport-random" aria-hidden="true"></span>
+      </button>
+      <button class="btn btn--media" id="btn-next" type="button" aria-label="Next station">
+        <span class="btn__icon btn__icon--mask btn__icon--transport-forward" aria-hidden="true"></span>
+      </button>
+    </section>
 
+    <div class="station-list" id="station-picker" role="listbox" aria-label="Stations"></div>
+  </div>
 
-
-  <section class="theme-toggle" aria-label="Display mode">
+  <footer class="footer">
     <img class="logo logo--light" src="art/logo-light.png" alt="radioghost" width="116" height="19">
     <img class="logo logo--dark" src="art/logo-dark.png" alt="radioghost" width="116" height="19">
-    <div class="theme-toggle__buttons">
-    <button class="btn btn--theme" data-theme-choice="light" type="button" aria-label="Light mode">
-      <span class="btn__icon btn__icon--mask btn__icon--mode-light" aria-hidden="true"></span>
-    </button>
-    <button class="btn btn--theme" data-theme-choice="dark" type="button" aria-label="Dark mode">
-      <span class="btn__icon btn__icon--mask btn__icon--mode-dark" aria-hidden="true"></span>
-    </button>
-    <button class="btn btn--theme" data-theme-choice="system" type="button" aria-label="System mode">
-      <span class="btn__icon btn__icon--mask btn__icon--mode-device" aria-hidden="true"></span>
-    </button>
+    <div class="footer__mode-selektor" role="group" aria-label="Display mode">
+      <button class="btn btn--mode" data-theme-choice="light" type="button" aria-label="Light mode">
+        <span class="btn__icon btn__icon--mask btn__icon--mode-light" aria-hidden="true"></span>
+      </button>
+      <button class="btn btn--mode" data-theme-choice="dark" type="button" aria-label="Dark mode">
+        <span class="btn__icon btn__icon--mask btn__icon--mode-dark" aria-hidden="true"></span>
+      </button>
+      <button class="btn btn--mode" data-theme-choice="system" type="button" aria-label="System mode">
+        <span class="btn__icon btn__icon--mask btn__icon--mode-device" aria-hidden="true"></span>
+      </button>
     </div>
-  </section>
+  </footer>
 
 </main>
 

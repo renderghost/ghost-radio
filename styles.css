@@ -1,59 +1,93 @@
+/* ==========================================================================
+   Tokens
+   Colour, space and radius mirror the Figma variable collections `color`
+   (light + dark modes), `space` and `base` — same names, same values. This is
+   the only section that knows about themes; everything below reads tokens.
+   ========================================================================== */
+
 :root {
-  --bg: hsl(16, 10%, 84%);
-  --card-bg: hsl(16, 10%, 93%);
-  --text: hsl(16, 10%, 11%);
-  --text-muted: hsl(16, 10%, 50%);
-  --bg-display: hsl(16, 10%, 84%);
-  --border: hsl(16, 10%, 76%);
-  --dot: hsl(16, 10%, 24%);
-  --btn-bg: hsl(16, 10%, 93%);
-  --btn-bg-hover: hsl(16, 10%, 84%);
+  --bg: hsl(16, 10%, 86%);
+  --bg-card: hsl(16, 16%, 94%);
+  --text: hsl(16, 4%, 11%);
+  --text-muted: hsl(16, 4%, 54%);
+  --border: hsl(16, 8%, 76%);
+  --dot: hsl(16, 6%, 26%);
   --accent: hsl(16, 100%, 62%);
-  --accent-hover: hsl(16, 90%, 52%);
+  --accent-hover: hsl(16, 86%, 57%);
+  --button-bg-panel: hsl(16, 16%, 94%);
+  --button-bg-panel-hover: hsl(16, 16%, 89%);
+  --button-bg-display: hsl(16, 10%, 86%);
+  --button-bg-display-hover: hsl(16, 8%, 81%);
+  --button-bg-accent: hsl(16, 100%, 62%);
+  --button-bg-accent-hover: hsl(16, 90%, 57%);
 }
 
 html[data-theme="dark"] {
-  --bg: hsl(16, 10%, 6%);
-  --card-bg: hsl(16, 10%, 16%);
-  --text: hsl(16, 10%, 92%);
-  --text-muted: hsl(16, 10%, 50%);
-  --bg-display: hsl(16, 10%, 6%);
-  --border: hsl(16, 10%, 24%);
-  --dot: hsl(17, 10%, 310%);
-  --btn-bg: hsl(10, 10%, 16%);
-  --btn-bg-hover: hsl(16, 10%, 20%);
-  --accent: hsl(16, 90%, 52%);
-  --accent-hover: hsl(16, 100%, 62%);
+  --bg: hsl(16, 9%, 6%);
+  --bg-card: hsl(16, 7%, 14%);
+  --text: hsl(16, 8%, 92%);
+  --text-muted: hsl(16, 7%, 38%);
+  --border: hsl(16, 7%, 24%);
+  --dot: hsl(16, 7%, 38%);
+  --accent: hsl(16, 100%, 62%);
+  --accent-hover: hsl(16, 100%, 66%);
+  --button-bg-panel: hsl(16, 7%, 16%);
+  --button-bg-panel-hover: hsl(16, 8%, 20%);
+  --button-bg-display: hsl(16, 9%, 6%);
+  --button-bg-display-hover: hsl(16, 8%, 13%);
+  --button-bg-accent: hsl(16, 100%, 62%);
+  --button-bg-accent-hover: hsl(16, 100%, 66%);
 }
 
 :root {
-  --radius-xs: 2px;
+  /* Radius (Figma `base`) */
   --radius-sm: 4px;
   --radius-base: 8px;
   --radius-lg: 16px;
-}
 
-:root {
-  /* Spacing scale — use these for gap/padding/margin instead of hardcoding px. */
+  /* Space (Figma `space`) — use these for gap/padding/margin instead of hardcoding px. */
   --space-zero: 0px;
   --space-px: 1px;
   --space-sm: 4px;
   --space-base: 8px;
+  --space-smd: 12px;
   --space-md: 16px;
-  --space-mmd: 20px;
   --space-lg: 24px;
   --space-xl: 32px;
-  }
+}
 
 :root {
-  /* Visualizer: controls how tall bars can get and how gently they ease
-     between values. --viz-max-height/--viz-min-height are mirrored as
-     maxHeightPx/minHeightPx in app.js — keep both in sync if you change them.
-     --viz-min-scale is --viz-min-height / --viz-max-height (CSS can't divide
-     two lengths in calc()) — mirrored as VIZ_MIN_SCALE in app.js. */
-  --viz-max-height: 128px;
-  --viz-min-height: 2px;
+  /* Layout — from the Figma frames (cards: max-width 416, max-height 640). */
+  --card-max-width: 416px;
+  --card-max-height: 640px;
+  /* Below this the page scrolls instead of squeezing the card further. With the
+     grille hidden: 2 border + 2×16 padding + 34 footer + 16 gap + ~250 content
+     (~136 station info + 64 visualizer minimum + 8 gap + 42 controls) = ~334.
+     The now-playing text overlays the visualizer, so it needs no room of its
+     own. Recompute this if the station-info padding or name size changes; the
+     layout check fails when the display starts to clip. */
+  --card-min-height: 336px;
+
+  /* Every glyph is centred in a square of this size (Figma icon frames). */
+  --icon-box: 24px;
+  --logo-height: 26px;
+
+  /* iPhone notch / home-indicator insets. Read through custom properties so
+     they can be overridden in devtools to emulate a notch on desktop. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}
+
+:root {
+  /* Visualizer: how gently bars ease between values. Bars are full-height and
+     scaled with transform, so the visualizer's height is whatever layout gives
+     it. --viz-min-scale is the resting bar as a fraction of that height (about
+     2px at the old fixed 128px) — read by app.js as VIZ_MIN_SCALE. The
+     container never collapses below --viz-min-container-height. */
   --viz-min-scale: 0.0156;
+  --viz-min-container-height: 64px;
   --viz-duration: 130ms;
   --viz-easing: cubic-bezier(.24, 1, .38, 1);
 }
@@ -66,105 +100,178 @@ html[data-theme="dark"] {
   --ticker-gap: 48px;
 }
 
+/* ==========================================================================
+   Base
+   ========================================================================== */
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  min-height: 100vh; /* fallback for browsers without dvh support */
-  min-height: 100dvh; /* tracks Safari's actual visible viewport as its address bar shows/hides */
+  height: 100vh; /* fallback for browsers without dvh support */
+  height: 100dvh; /* tracks Safari's actual visible viewport as its address bar shows/hides */
+  overflow-y: auto; /* only kicks in when the viewport is below --card-min-height */
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-base);
+  flex-direction: column; /* column, so the card's flex-grow controls its HEIGHT */
+  /* No bottom padding here: it would fall outside the scroll range once the card
+     overflows. body::after below carries it so it survives scrolling. */
+  padding:
+    max(var(--space-base), var(--safe-top))
+    max(var(--space-base), var(--safe-right))
+    0
+    max(var(--space-base), var(--safe-left));
   background: var(--bg);
   color: var(--text);
   font-family: "DM Sans", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
   transition: background-color .2s ease, color .2s ease;
 }
 
+/* Bottom breathing room + home-indicator inset, kept even when the page scrolls. */
+body::after {
+  content: "";
+  flex: none;
+  height: max(var(--space-base), var(--safe-bottom));
+}
+
 button {
   font-family: inherit;
 }
 
+/* ==========================================================================
+   Card (Figma: cards)
+   ========================================================================== */
+
 .radio {
-  width: min(384px, 100%);
-  display: grid;
-  grid-template-areas:
-    "speaker"
-    "display"
-    "transport"
-    "theme";
+  /* Surface: buttons on the card use the panel fill pair. */
+  --btn-bg: var(--button-bg-panel);
+  --btn-bg-hover: var(--button-bg-panel-hover);
+  --btn-border: var(--border);
+
+  flex: 1 1 0;
+  width: 100%;
+  max-width: var(--card-max-width);
+  min-height: var(--card-min-height);
+  /* Centres when a max-height leaves spare room; collapses to 0 (page scrolls
+     from the top) below the floor — unlike justify-content: center, which
+     would clip the overflow. */
+  margin: auto;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-md);
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-base);
   padding: var(--space-lg) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   transition: background-color .2s ease, border-color .2s ease;
   font-size: 1rem;
-  line-height: 1.25;
+  line-height: 1.5;
 }
 
+/* Phones fill the safe-area height; from a tablet/desktop width the card is capped and centred. */
+@media (min-width: 600px) {
+  .radio {
+    max-height: var(--card-max-height);
+  }
+}
+
+/* The short SE frame trades 8px of vertical padding for room. */
+@media (max-height: 600px) {
+  .radio {
+    padding-block: var(--space-md);
+  }
+}
+
+/* ==========================================================================
+   SpeakerGrid (art/dots.svg — to change the grille, just swap that file)
+   ========================================================================== */
+
 .speaker {
-  grid-area: speaker;
+  flex: none;
   display: block;
   width: 100%;
   height: auto;
 }
 
-/* Display */
+/* Landscape phones (no Figma frame): the grille is decoration, the display isn't.
+   480px is the shortest viewport where the card, the tallest grille (~105px) and
+   its gap still clear --card-min-height: 336 + 105 + 16 + 16 padding = 473. */
+@media (max-height: 480px) {
+  .speaker {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Content (Figma: Content — states Player / StationSelector)
+   ========================================================================== */
+
+.content {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+/* Station selector state: the list replaces the display AND the media controls.
+   They stay in the DOM (display: none only), so the document-level keyboard
+   shortcuts and Media Session keep working. */
+.content[data-state="selector"] > .display,
+.content[data-state="selector"] > .media-controls {
+  display: none;
+}
+
+.content[data-state="selector"] > .station-list {
+  display: flex;
+}
+
+/* ==========================================================================
+   Display (Figma: Display, Display-StationInfo, Display-AudioInfo)
+   ========================================================================== */
+
 .display {
-  position: relative;
-  background: var(--bg-display);
+  /* Surface: buttons inside the display use the display fill pair. */
+  --btn-bg: var(--button-bg-display);
+  --btn-bg-hover: var(--button-bg-display-hover);
+
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl);
-  grid-area: display;
-  min-width: 0;
-  transition: background-color .2s ease, border-color .2s ease;
+  transition: background-color .2s ease;
 }
 
-.display__content {
+.display__station-info {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-smd);
   min-width: 0;
-  padding: var(--space-md);
+  padding: var(--space-smd);
 }
 
-.display__status-row {
+.display__status {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding-bottom: 6px;
 }
 
 .display__status-group {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-base);
   min-width: 0;
 }
 
-.display__meta-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-zero);
-}
-
-.display__counter {
+/* 16px = --space-md */
+.display__live-indicator {
   flex: none;
-  color: var(--text-muted);
-}
-
-.display__status {
-  flex: none;
-  width: 15px;
-  height: 15px;
+  width: var(--space-md);
+  height: var(--space-md);
   border-radius: 50%;
   background: var(--text-muted);
 }
@@ -176,7 +283,7 @@ button {
 
 /* Accent is reserved for confirmed live audio — seeking uses the default
    text-muted styling above, so only the pulse animation marks it as active. */
-body[data-status="playing"] .display__status {
+body[data-status="playing"] .display__live-indicator {
   background: var(--accent);
 }
 
@@ -184,7 +291,7 @@ body[data-status="playing"] .display__status-label {
   color: var(--accent);
 }
 
-body[data-status="seeking"] .display__status {
+body[data-status="seeking"] .display__live-indicator {
   animation: pulse 1s ease-in-out infinite;
 }
 
@@ -193,61 +300,26 @@ body[data-status="seeking"] .display__status {
   50% { opacity: .25; }
 }
 
-.display__text {
+.display__audio-info {
+  position: relative; /* anchors the now-playing overlay */
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  min-width: 0;
 }
 
-.display__name {
-  appearance: none;
-  border: none;
-  background: none;
-  padding: 0;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  display: block;
-  width: 100%;
-  font-family: inherit;
-  font-size: clamp(1.5rem, 4.2vw, 1.25rem);
-  line-height: 1.25;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.display__name:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.display__name.is-empty {
-  color: var(--text-muted);
-}
-
-.display__meta {
-  flex: 1 1 0;
-  min-width: 0;
-  color: var(--text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+/* The visualizer is what stretches: it takes whatever height the card has left. */
 .display__visualizer {
+  flex: 1 1 0;
+  min-height: var(--viz-min-container-height);
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
   gap: var(--space-zero);
-  height: var(--viz-max-height);
 }
 
 .display__visualizer-bar {
   flex: 1 1 0;
   min-width: 0;
-  height: var(--viz-max-height);
   transform-origin: bottom;
   transform: scaleY(var(--viz-min-scale));
   background: var(--border);
@@ -262,19 +334,30 @@ body[data-status="seeking"] .display__status {
   }
 }
 
+/* Overlay on the bottom of the visualizer: transparent, so the bars show
+   through behind the text, and it takes no height of its own. Hidden when
+   there is no track. */
 .display__now-playing {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  overflow: hidden;
-  padding: var(--space-md);
-  font-size: 1rem;
+  padding: var(--space-base) var(--space-md);
+  background: transparent;
   color: var(--text);
   /* Without this, mobile Safari's automatic text-size inflation can bump this
      up to a larger size once the ticker's nowrap content overflows its
      container — the size then looks inconsistent depending on track length. */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+.display__now-playing[hidden] {
+  display: none;
+}
+
+/* Padding-free clip box: the ticker measures overflow against its width. */
+.display__now-playing-viewport {
+  overflow: hidden;
 }
 
 .display__now-playing-track {
@@ -331,94 +414,108 @@ body[data-status="seeking"] .display__status {
   }
 }
 
-/* Station picker: clicking .display__name (the station name button) toggles
-   state.pickerOpen (see app.js), which replaces the status row/name/
-   visualizer/now-playing ticker with a scrolling list of every station.
-   Open state gets a fixed (not min-) height matching the closed state's
-   natural rendered height — a flex:1 child can't scroll within a container
-   whose height is unbounded, it just grows the container to fit instead,
-   so this needs a real ceiling, not just a floor. */
-.display {
-  overflow: hidden;
-}
+/* ==========================================================================
+   Media controls (Figma: MediaContols)
+   ========================================================================== */
 
-.display.is-picker-open {
-  height: 278px;
-}
-
-.display.is-picker-open .display__content,
-.display.is-picker-open .display__visualizer,
-.display.is-picker-open .display__now-playing {
-  display: none;
-}
-
-.station-picker {
-  display: none;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0; /* lets this flex item shrink so overflow-y can actually scroll instead of growing the card */
-  overflow-y: auto;
-}
-
-.display.is-picker-open .station-picker {
+.media-controls {
+  flex: none;
   display: flex;
+  gap: var(--space-sm);
 }
 
-.station-picker__item {
+/* ==========================================================================
+   Station list (Figma: StationSelector-StationList)
+   Only shown in the selector state (see .content[data-state] above).
+   ========================================================================== */
+
+.station-list {
+  display: none;
+  flex: 1 1 0;
+  min-height: 0; /* lets this flex item shrink so overflow-y can actually scroll instead of growing the card */
+  flex-direction: column;
+  padding: var(--space-base) var(--space-zero);
+  overflow-x: clip;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--button-bg-display);
+  border-radius: var(--radius-sm);
+}
+
+.station-list__item {
   appearance: none;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-base);
   border: none;
   background: transparent;
   color: inherit;
   text-align: left;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  flex: none;
-  padding: var(--space-sm) var(--space-md);
   font-family: inherit;
   font-size: 1rem;
   line-height: 1.5;
+  cursor: pointer;
+  transition: background-color .15s ease;
 }
 
-.station-picker__item:hover,
-.station-picker__item:focus-visible {
-  background: var(--border);
+@media (hover: hover) {
+  .station-list__item:hover {
+    background: var(--button-bg-display-hover);
+  }
 }
 
-.station-picker__item:focus-visible {
+.station-list__item:focus-visible {
+  background: var(--button-bg-display-hover);
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
-.station-picker__name {
+.station-list__name {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.station-picker__location {
+.station-list__location {
+  font-size: .875rem;
+  line-height: 1.25rem;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Buttons, shared */
+/* ==========================================================================
+   Buttons
+   One base for every button. The surface a button sits on picks its fill pair
+   through inherited custom properties (.radio = panel, .display = display),
+   so there is no "inside the display" variant to remember.
+   ========================================================================== */
 .btn {
   appearance: none;
-  border: 1px solid var(--border);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-zero);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--radius-sm);
   background: var(--btn-bg);
   color: var(--text);
-  border-radius: var(--radius-sm);
+  font: inherit;
   cursor: pointer;
   touch-action: manipulation;
   transition: background-color .15s ease, color .15s ease, border-color .15s ease;
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--btn-bg-hover);
+/* Hover only where hover exists — on touch screens it would stick after a tap. */
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    background: var(--btn-bg-hover);
+  }
 }
 
 .btn:disabled {
@@ -431,82 +528,101 @@ body[data-status="seeking"] .display__status {
   outline-offset: 2px;
 }
 
-/* Copy button */
-.btn--copy {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  border-color: transparent;
-  background: var(--bg);
-  padding: var(--space-zero);
-  color: var(--text-muted);
+/* Accent: only the play button while playing. */
+.btn--accent {
+  --btn-bg: var(--button-bg-accent);
+  --btn-bg-hover: var(--button-bg-accent-hover);
 }
 
-.btn--copy:hover:not(:disabled),
-.btn--copy:hover,
-.btn--copy.is-copied,
-.btn--copy.is-copied:hover {
-  border-color: var(--accent);
+/* Media controls: three equal buttons. Height comes from padding + icon box + border (8 + 24 + 8 + 2 = 42). */
+.btn--media {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: var(--space-base);
+}
+
+/* Mode selektor: 4 + 24 + 4 + 2 = 34. Selected = accent border and icon. */
+.btn--mode {
+  padding: var(--space-sm);
+}
+
+.btn--mode.is-active {
+  --btn-border: var(--accent);
   color: var(--accent);
 }
 
-/* Transport */
-.transport {
-  grid-area: transport;
-  display: flex;
-  gap: var(--space-base);
+@media (hover: hover) {
+  .btn--mode.is-active:hover:not(:disabled) {
+    --btn-border: var(--accent-hover);
+    color: var(--accent-hover);
+  }
 }
 
-.btn--transport {
-  flex: 1;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Copy URL: the same bordered icon + label at every width. */
+.btn--copy {
+  height: var(--icon-box);
+  padding: var(--space-sm) var(--space-zero) var(--space-sm) var(--space-sm) ;
+  gap: var(--space-zero);
 }
 
-.btn__icon--transport-back,
-.btn__icon--transport-forward {
-  width: 12px;
-  height: 20px;
+.btn--copy.is-copied {
+  --btn-border: var(--accent);
+  color: var(--accent);
 }
 
-.btn__icon--transport-play {
-  width: 19px;
-  height: 20px;
+/* Select station: the whole name + location block is the button. */
+.display__select-station {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--space-zero);
+  padding: var(--space-base);
+  text-align: left;
 }
 
-.btn__icon--transport-back {
-  mask-image: url("art/transport-back.svg");
-  -webkit-mask-image: url("art/transport-back.svg");
+/* With no stations this is a status message, not a dimmed control. */
+.display__select-station:disabled {
+  opacity: 1;
 }
 
-.btn__icon--transport-play {
-  mask-image: url("art/transport-play.svg");
-  -webkit-mask-image: url("art/transport-play.svg");
-}
-
-.btn__icon--transport-forward {
-  mask-image: url("art/transport-forward.svg");
-  -webkit-mask-image: url("art/transport-forward.svg");
-}
-
-.btn__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: inherit;
+.display__station-name {
   font-size: 1.5rem;
+  line-height: 1.4;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Linked SVG icons, coloured via CSS mask rather than inline markup — the
-   source files are plain black shapes on transparent backgrounds; only
-   their alpha (the shape) is used, so background-color fully controls the
-   rendered colour via the same currentColor cascade as text-glyph icons. */
-.btn__icon--mask {
-  width: 16px;
-  height: 16px;
+.display__station-name.is-empty {
+  color: var(--text-muted);
+}
+
+.display__station-location {
+  min-height: 1.5em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Icons: a fixed square holds the glyph, painted through a CSS mask on ::before
+   so currentColor controls its colour. The source SVGs are plain black shapes;
+   only their alpha (the shape) is used. */
+.btn__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: var(--icon-box);
+  height: var(--icon-box);
+  color: inherit;
+}
+
+.btn__icon--mask::before {
+  content: "";
+  width: var(--icon-width, 16px);
+  height: var(--icon-height, 16px);
   background-color: currentColor;
   mask-repeat: no-repeat;
   mask-position: center;
@@ -516,35 +632,77 @@ body[data-status="seeking"] .display__status {
   -webkit-mask-size: contain;
 }
 
-.btn--play.is-playing {
-  border-color: var(--accent);
-  color: var(--text);
-  background-color: var(--accent);
+.btn__icon--transport-back,
+.btn__icon--transport-forward {
+  --icon-width: 20px;
+  --icon-height: 20px;
 }
 
-.btn--play.is-playing:hover {
-  border-color: var(--accent);
-  color: var(--text);
-  background-color: var(--accent-hover);
+.btn__icon--transport-play {
+  --icon-width: 24px;
+  --icon-height: 24px;
 }
 
-/* Theme toggle */
-.theme-toggle {
-  grid-area: theme;
+/* Same 24px square as the play glyph. */
+.btn__icon--transport-random {
+  --icon-width: 24px;
+  --icon-height: 24px;
+}
+
+.btn__icon--transport-back::before {
+  mask-image: url("art/transport-back.svg");
+  -webkit-mask-image: url("art/transport-back.svg");
+}
+
+.btn__icon--transport-play::before {
+  mask-image: url("art/transport-play.svg");
+  -webkit-mask-image: url("art/transport-play.svg");
+}
+
+.btn__icon--transport-random::before {
+  mask-image: url("art/transport-random.svg");
+  -webkit-mask-image: url("art/transport-random.svg");
+}
+
+.btn__icon--transport-forward::before {
+  mask-image: url("art/transport-forward.svg");
+  -webkit-mask-image: url("art/transport-forward.svg");
+}
+
+.btn__icon--mode-light::before {
+  mask-image: url("art/mode-light.svg");
+  -webkit-mask-image: url("art/mode-light.svg");
+}
+
+.btn__icon--mode-dark::before {
+  mask-image: url("art/mode-dark.svg");
+  -webkit-mask-image: url("art/mode-dark.svg");
+}
+
+.btn__icon--mode-device::before {
+  mask-image: url("art/mode-device.svg");
+  -webkit-mask-image: url("art/mode-device.svg");
+}
+
+/* ==========================================================================
+   Footer (Figma: Footer, Footer-Logo, Footer-ModeSelektor)
+   ========================================================================== */
+
+.footer {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-zero);
 }
 
-.theme-toggle__buttons {
+.footer__mode-selektor {
   display: flex;
   gap: var(--space-sm);
 }
 
 .logo {
   display: block;
-  height: 26px;
+  height: var(--logo-height);
   width: auto;
 }
 
@@ -558,59 +716,4 @@ html[data-theme="dark"] .logo--light {
 
 html[data-theme="dark"] .logo--dark {
   display: block;
-}
-
-.btn--theme {
-  flex: none;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.btn--theme.is-active {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-
-.btn__icon--mode-light {
-  mask-image: url("art/mode-light.svg");
-  -webkit-mask-image: url("art/mode-light.svg");
-}
-
-.btn__icon--mode-dark {
-  mask-image: url("art/mode-dark.svg");
-  -webkit-mask-image: url("art/mode-dark.svg");
-}
-
-.btn__icon--mode-device {
-  mask-image: url("art/mode-device.svg");
-  -webkit-mask-image: url("art/mode-device.svg");
-}
-
-@media (max-width: 360px) {
-  .radio {
-    padding: var(--space-base);
-  }
-}
-
-/* Regular/desktop viewport: larger hit target for the status row's Copy
-   control, and the status row centers instead of aligning to the top. */
-@media (min-width: 600px) {
-  .display__status-row {
-    align-items: center;
-  }
-
-  .btn--copy {
-    flex-direction: row-reverse;
-    border-color: var(--border);
-    padding: var(--space-px) var(--space-sm);
-    border-radius: var(--radius-sm);
-  }
-
-  .btn--copy:hover:not(:disabled) {
-    background: var(--btn-bg-hover);
-  }
 }
