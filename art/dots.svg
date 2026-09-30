@@ -1,122 +1,724 @@
-<svg width="350" height="97" viewBox="0 0 350 97" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" y="18.0417" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" y="36.0833" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" y="54.125" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" y="72.1667" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="18.1" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="36.2" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="54.3" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="72.4" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="90.5" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="108.6" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="126.7" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="144.8" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="162.9" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="181" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="199.1" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="217.2" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="235.3" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="253.4" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="271.5" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="289.6" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="307.7" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="325.8" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
-<rect x="343.9" y="90.2083" width="6.1" height="5.80952" rx="2.90476" fill="#111110"/>
+<svg width="350" height="96" viewBox="0 0 350 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_20_1713)">
+<rect y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip1_20_1713)">
+<rect x="18.2002" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip2_20_1713)">
+<rect x="36.3999" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip3_20_1713)">
+<rect x="54.6001" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip4_20_1713)">
+<rect x="72.7998" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip5_20_1713)">
+<rect x="91" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip6_20_1713)">
+<rect x="109.2" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip7_20_1713)">
+<rect x="127.4" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip8_20_1713)">
+<rect x="145.6" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip9_20_1713)">
+<rect x="163.8" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip10_20_1713)">
+<rect x="182" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip11_20_1713)">
+<rect x="200.2" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip12_20_1713)">
+<rect x="218.4" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip13_20_1713)">
+<rect x="236.6" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip14_20_1713)">
+<rect x="254.8" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip15_20_1713)">
+<rect x="273" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip16_20_1713)">
+<rect x="291.2" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip17_20_1713)">
+<rect x="309.4" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip18_20_1713)">
+<rect x="327.6" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip19_20_1713)">
+<rect x="345.8" y="-0.0999756" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip20_20_1713)">
+<rect y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip21_20_1713)">
+<rect x="18.2002" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip22_20_1713)">
+<rect x="36.3999" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip23_20_1713)">
+<rect x="54.6001" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip24_20_1713)">
+<rect x="72.7998" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip25_20_1713)">
+<rect x="91" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip26_20_1713)">
+<rect x="109.2" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip27_20_1713)">
+<rect x="127.4" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip28_20_1713)">
+<rect x="145.6" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip29_20_1713)">
+<rect x="163.8" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip30_20_1713)">
+<rect x="182" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip31_20_1713)">
+<rect x="200.2" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip32_20_1713)">
+<rect x="218.4" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip33_20_1713)">
+<rect x="236.6" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip34_20_1713)">
+<rect x="254.8" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip35_20_1713)">
+<rect x="273" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip36_20_1713)">
+<rect x="291.2" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip37_20_1713)">
+<rect x="309.4" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip38_20_1713)">
+<rect x="327.6" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip39_20_1713)">
+<rect x="345.8" y="18.1" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip40_20_1713)">
+<rect y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip41_20_1713)">
+<rect x="18.2002" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip42_20_1713)">
+<rect x="36.3999" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip43_20_1713)">
+<rect x="54.6001" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip44_20_1713)">
+<rect x="72.7998" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip45_20_1713)">
+<rect x="91" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip46_20_1713)">
+<rect x="109.2" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip47_20_1713)">
+<rect x="127.4" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip48_20_1713)">
+<rect x="145.6" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip49_20_1713)">
+<rect x="163.8" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip50_20_1713)">
+<rect x="182" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip51_20_1713)">
+<rect x="200.2" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip52_20_1713)">
+<rect x="218.4" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip53_20_1713)">
+<rect x="236.6" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip54_20_1713)">
+<rect x="254.8" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip55_20_1713)">
+<rect x="273" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip56_20_1713)">
+<rect x="291.2" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip57_20_1713)">
+<rect x="309.4" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip58_20_1713)">
+<rect x="327.6" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip59_20_1713)">
+<rect x="345.8" y="36.3" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip60_20_1713)">
+<rect y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip61_20_1713)">
+<rect x="18.2002" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip62_20_1713)">
+<rect x="36.3999" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip63_20_1713)">
+<rect x="54.6001" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip64_20_1713)">
+<rect x="72.7998" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip65_20_1713)">
+<rect x="91" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip66_20_1713)">
+<rect x="109.2" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip67_20_1713)">
+<rect x="127.4" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip68_20_1713)">
+<rect x="145.6" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip69_20_1713)">
+<rect x="163.8" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip70_20_1713)">
+<rect x="182" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip71_20_1713)">
+<rect x="200.2" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip72_20_1713)">
+<rect x="218.4" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip73_20_1713)">
+<rect x="236.6" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip74_20_1713)">
+<rect x="254.8" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip75_20_1713)">
+<rect x="273" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip76_20_1713)">
+<rect x="291.2" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip77_20_1713)">
+<rect x="309.4" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip78_20_1713)">
+<rect x="327.6" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip79_20_1713)">
+<rect x="345.8" y="54.5" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip80_20_1713)">
+<rect y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip81_20_1713)">
+<rect x="18.2002" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip82_20_1713)">
+<rect x="36.3999" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip83_20_1713)">
+<rect x="54.6001" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip84_20_1713)">
+<rect x="72.7998" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip85_20_1713)">
+<rect x="91" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip86_20_1713)">
+<rect x="109.2" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip87_20_1713)">
+<rect x="127.4" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip88_20_1713)">
+<rect x="145.6" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip89_20_1713)">
+<rect x="163.8" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip90_20_1713)">
+<rect x="182" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip91_20_1713)">
+<rect x="200.2" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip92_20_1713)">
+<rect x="218.4" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip93_20_1713)">
+<rect x="236.6" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip94_20_1713)">
+<rect x="254.8" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip95_20_1713)">
+<rect x="273" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip96_20_1713)">
+<rect x="291.2" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip97_20_1713)">
+<rect x="309.4" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip98_20_1713)">
+<rect x="327.6" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip99_20_1713)">
+<rect x="345.8" y="72.7001" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip100_20_1713)">
+<rect y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip101_20_1713)">
+<rect x="18.2002" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip102_20_1713)">
+<rect x="36.3999" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip103_20_1713)">
+<rect x="54.6001" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip104_20_1713)">
+<rect x="72.7998" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip105_20_1713)">
+<rect x="91" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip106_20_1713)">
+<rect x="109.2" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip107_20_1713)">
+<rect x="127.4" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip108_20_1713)">
+<rect x="145.6" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip109_20_1713)">
+<rect x="163.8" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip110_20_1713)">
+<rect x="182" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip111_20_1713)">
+<rect x="200.2" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip112_20_1713)">
+<rect x="218.4" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip113_20_1713)">
+<rect x="236.6" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip114_20_1713)">
+<rect x="254.8" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip115_20_1713)">
+<rect x="273" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip116_20_1713)">
+<rect x="291.2" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip117_20_1713)">
+<rect x="309.4" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip118_20_1713)">
+<rect x="327.6" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<g clip-path="url(#clip119_20_1713)">
+<rect x="345.8" y="90.9" width="4.2" height="4.2" rx="2.1" fill="black"/>
+</g>
+<defs>
+<clipPath id="clip0_20_1713">
+<rect width="4.2" height="4.2" fill="white"/>
+</clipPath>
+<clipPath id="clip1_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002)"/>
+</clipPath>
+<clipPath id="clip2_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999)"/>
+</clipPath>
+<clipPath id="clip3_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001)"/>
+</clipPath>
+<clipPath id="clip4_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998)"/>
+</clipPath>
+<clipPath id="clip5_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91)"/>
+</clipPath>
+<clipPath id="clip6_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2)"/>
+</clipPath>
+<clipPath id="clip7_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4)"/>
+</clipPath>
+<clipPath id="clip8_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6)"/>
+</clipPath>
+<clipPath id="clip9_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8)"/>
+</clipPath>
+<clipPath id="clip10_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182)"/>
+</clipPath>
+<clipPath id="clip11_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2)"/>
+</clipPath>
+<clipPath id="clip12_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4)"/>
+</clipPath>
+<clipPath id="clip13_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6)"/>
+</clipPath>
+<clipPath id="clip14_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8)"/>
+</clipPath>
+<clipPath id="clip15_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273)"/>
+</clipPath>
+<clipPath id="clip16_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2)"/>
+</clipPath>
+<clipPath id="clip17_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4)"/>
+</clipPath>
+<clipPath id="clip18_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6)"/>
+</clipPath>
+<clipPath id="clip19_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8)"/>
+</clipPath>
+<clipPath id="clip20_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(0 18.2)"/>
+</clipPath>
+<clipPath id="clip21_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002 18.2)"/>
+</clipPath>
+<clipPath id="clip22_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999 18.2)"/>
+</clipPath>
+<clipPath id="clip23_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001 18.2)"/>
+</clipPath>
+<clipPath id="clip24_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998 18.2)"/>
+</clipPath>
+<clipPath id="clip25_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91 18.2)"/>
+</clipPath>
+<clipPath id="clip26_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2 18.2)"/>
+</clipPath>
+<clipPath id="clip27_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4 18.2)"/>
+</clipPath>
+<clipPath id="clip28_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6 18.2)"/>
+</clipPath>
+<clipPath id="clip29_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8 18.2)"/>
+</clipPath>
+<clipPath id="clip30_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182 18.2)"/>
+</clipPath>
+<clipPath id="clip31_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2 18.2)"/>
+</clipPath>
+<clipPath id="clip32_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4 18.2)"/>
+</clipPath>
+<clipPath id="clip33_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6 18.2)"/>
+</clipPath>
+<clipPath id="clip34_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8 18.2)"/>
+</clipPath>
+<clipPath id="clip35_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273 18.2)"/>
+</clipPath>
+<clipPath id="clip36_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2 18.2)"/>
+</clipPath>
+<clipPath id="clip37_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4 18.2)"/>
+</clipPath>
+<clipPath id="clip38_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6 18.2)"/>
+</clipPath>
+<clipPath id="clip39_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8 18.2)"/>
+</clipPath>
+<clipPath id="clip40_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(0 36.4)"/>
+</clipPath>
+<clipPath id="clip41_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002 36.4)"/>
+</clipPath>
+<clipPath id="clip42_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999 36.4)"/>
+</clipPath>
+<clipPath id="clip43_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001 36.4)"/>
+</clipPath>
+<clipPath id="clip44_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998 36.4)"/>
+</clipPath>
+<clipPath id="clip45_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91 36.4)"/>
+</clipPath>
+<clipPath id="clip46_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2 36.4)"/>
+</clipPath>
+<clipPath id="clip47_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4 36.4)"/>
+</clipPath>
+<clipPath id="clip48_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6 36.4)"/>
+</clipPath>
+<clipPath id="clip49_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8 36.4)"/>
+</clipPath>
+<clipPath id="clip50_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182 36.4)"/>
+</clipPath>
+<clipPath id="clip51_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2 36.4)"/>
+</clipPath>
+<clipPath id="clip52_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4 36.4)"/>
+</clipPath>
+<clipPath id="clip53_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6 36.4)"/>
+</clipPath>
+<clipPath id="clip54_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8 36.4)"/>
+</clipPath>
+<clipPath id="clip55_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273 36.4)"/>
+</clipPath>
+<clipPath id="clip56_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2 36.4)"/>
+</clipPath>
+<clipPath id="clip57_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4 36.4)"/>
+</clipPath>
+<clipPath id="clip58_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6 36.4)"/>
+</clipPath>
+<clipPath id="clip59_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8 36.4)"/>
+</clipPath>
+<clipPath id="clip60_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(0 54.6)"/>
+</clipPath>
+<clipPath id="clip61_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002 54.6)"/>
+</clipPath>
+<clipPath id="clip62_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999 54.6)"/>
+</clipPath>
+<clipPath id="clip63_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001 54.6)"/>
+</clipPath>
+<clipPath id="clip64_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998 54.6)"/>
+</clipPath>
+<clipPath id="clip65_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91 54.6)"/>
+</clipPath>
+<clipPath id="clip66_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2 54.6)"/>
+</clipPath>
+<clipPath id="clip67_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4 54.6)"/>
+</clipPath>
+<clipPath id="clip68_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6 54.6)"/>
+</clipPath>
+<clipPath id="clip69_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8 54.6)"/>
+</clipPath>
+<clipPath id="clip70_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182 54.6)"/>
+</clipPath>
+<clipPath id="clip71_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2 54.6)"/>
+</clipPath>
+<clipPath id="clip72_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4 54.6)"/>
+</clipPath>
+<clipPath id="clip73_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6 54.6)"/>
+</clipPath>
+<clipPath id="clip74_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8 54.6)"/>
+</clipPath>
+<clipPath id="clip75_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273 54.6)"/>
+</clipPath>
+<clipPath id="clip76_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2 54.6)"/>
+</clipPath>
+<clipPath id="clip77_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4 54.6)"/>
+</clipPath>
+<clipPath id="clip78_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6 54.6)"/>
+</clipPath>
+<clipPath id="clip79_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8 54.6)"/>
+</clipPath>
+<clipPath id="clip80_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(0 72.8)"/>
+</clipPath>
+<clipPath id="clip81_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002 72.8)"/>
+</clipPath>
+<clipPath id="clip82_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999 72.8)"/>
+</clipPath>
+<clipPath id="clip83_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001 72.8)"/>
+</clipPath>
+<clipPath id="clip84_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998 72.8)"/>
+</clipPath>
+<clipPath id="clip85_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91 72.8)"/>
+</clipPath>
+<clipPath id="clip86_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2 72.8)"/>
+</clipPath>
+<clipPath id="clip87_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4 72.8)"/>
+</clipPath>
+<clipPath id="clip88_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6 72.8)"/>
+</clipPath>
+<clipPath id="clip89_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8 72.8)"/>
+</clipPath>
+<clipPath id="clip90_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182 72.8)"/>
+</clipPath>
+<clipPath id="clip91_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2 72.8)"/>
+</clipPath>
+<clipPath id="clip92_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4 72.8)"/>
+</clipPath>
+<clipPath id="clip93_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6 72.8)"/>
+</clipPath>
+<clipPath id="clip94_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8 72.8)"/>
+</clipPath>
+<clipPath id="clip95_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273 72.8)"/>
+</clipPath>
+<clipPath id="clip96_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2 72.8)"/>
+</clipPath>
+<clipPath id="clip97_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4 72.8)"/>
+</clipPath>
+<clipPath id="clip98_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6 72.8)"/>
+</clipPath>
+<clipPath id="clip99_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8 72.8)"/>
+</clipPath>
+<clipPath id="clip100_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(0 91)"/>
+</clipPath>
+<clipPath id="clip101_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(18.2002 91)"/>
+</clipPath>
+<clipPath id="clip102_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(36.3999 91)"/>
+</clipPath>
+<clipPath id="clip103_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(54.6001 91)"/>
+</clipPath>
+<clipPath id="clip104_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(72.7998 91)"/>
+</clipPath>
+<clipPath id="clip105_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(91 91)"/>
+</clipPath>
+<clipPath id="clip106_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(109.2 91)"/>
+</clipPath>
+<clipPath id="clip107_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(127.4 91)"/>
+</clipPath>
+<clipPath id="clip108_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(145.6 91)"/>
+</clipPath>
+<clipPath id="clip109_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(163.8 91)"/>
+</clipPath>
+<clipPath id="clip110_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(182 91)"/>
+</clipPath>
+<clipPath id="clip111_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(200.2 91)"/>
+</clipPath>
+<clipPath id="clip112_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(218.4 91)"/>
+</clipPath>
+<clipPath id="clip113_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(236.6 91)"/>
+</clipPath>
+<clipPath id="clip114_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(254.8 91)"/>
+</clipPath>
+<clipPath id="clip115_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(273 91)"/>
+</clipPath>
+<clipPath id="clip116_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(291.2 91)"/>
+</clipPath>
+<clipPath id="clip117_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(309.4 91)"/>
+</clipPath>
+<clipPath id="clip118_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(327.6 91)"/>
+</clipPath>
+<clipPath id="clip119_20_1713">
+<rect width="4.2" height="4.2" fill="white" transform="translate(345.8 91)"/>
+</clipPath>
+</defs>
 </svg>

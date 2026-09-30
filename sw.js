@@ -8,7 +8,7 @@
 // particular changes independently of any of this — so a stale cache with
 // no way to invalidate would be a real footgun. Bumping the version is what
 // clears out the old cache on the next visit (see the "activate" handler).
-const CACHE_NAME = "ghost-radio-shell-v1";
+const CACHE_NAME = "ghost-radio-shell-v6";
 
 const SHELL_FILES = [
   "/",
@@ -29,6 +29,7 @@ const SHELL_FILES = [
   "/art/mode-device.svg",
   "/art/transport-back.svg",
   "/art/transport-play.svg",
+  "/art/transport-random.svg",
   "/art/transport-forward.svg",
 ];
 

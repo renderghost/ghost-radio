@@ -18,8 +18,12 @@ Then open `http://localhost:8080`.
 ## Controls
 
 - Play/Stop, Previous, and Next transport buttons cycle through all
-  configured stations (wraps around at either end)
-- Keyboard shortcuts: `Space` to play/stop, `←`/`→` to change station
+  configured stations (wraps around at either end); Random jumps to a random
+  station other than the current one
+- Keyboard shortcuts: `Space` to play/stop, `←`/`→` to change station, `R` for a
+  random station. They keep working while the station list is open, where
+  `↑`/`↓`/`Home`/`End` also move through the rows, `Enter` selects and `Esc`
+  closes
 - A live frequency visualizer runs while playing, using the Web Audio API.
   Most streams don't send CORS headers, so the player first tries a
   CORS-enabled load (needed for the analyser to read audio data) and
