@@ -277,7 +277,6 @@ button {
 }
 
 .display__status-label {
-  font-weight: 500;
   color: var(--text-muted);
 }
 
@@ -291,7 +290,11 @@ body[data-status="playing"] .display__status-label {
   color: var(--accent);
 }
 
-body[data-status="seeking"] .display__live-indicator {
+/* seeking = actively tuning in; reconnecting = actively trying to recover a
+   station that just dropped. Both are "still working on it" states, so both
+   pulse; notfound/error/offline are settled outcomes and stay static. */
+body[data-status="seeking"] .display__live-indicator,
+body[data-status="reconnecting"] .display__live-indicator {
   animation: pulse 1s ease-in-out infinite;
 }
 

@@ -8,7 +8,7 @@ const state = {
   currentIndex: 0,
   playing: false,
   everPlayed: false, // has the user ever started playback this session? — see updateMediaSessionState()
-  status: "idle", // idle | seeking | playing | error
+  status: "idle", // idle | seeking | notfound | playing | reconnecting | error | offline
   theme: "system", // light | dark | system
   pickerOpen: false,
 };
@@ -49,8 +49,11 @@ const VIZ_MIN_SCALE = Number.parseFloat(getComputedStyle(document.documentElemen
 const STATUS_LABELS = {
   idle: "Off Air",
   seeking: "Seeking",
+  notfound: "Not Found", // a station that's never connected this seek failed — brief, then the seek continues
   playing: "Live",
-  error: "Signal Lost",
+  reconnecting: "Signal Lost", // a station that WAS live just dropped — attempting to reconnect to it before giving up
+  error: "No Signal", // a full lap found nothing live anywhere — distinct wording from "reconnecting" above, since this one's actually given up
+  offline: "Offline", // the device itself has no network — see beginSeeking()/advanceSeek()
 };
 
 const BASE_TITLE = document.title; // whatever's in index.html's <title> — read once so the two can't drift
@@ -99,7 +102,7 @@ const els = {
 };
 
 // The tab favicon swaps to an accent-colored "-active" variant while a
-// station is actually live — mirrors the accent-colored .display__status dot
+// station is actually live — mirrors the accent-colored .display__live-indicator dot
 // in the UI itself. Only the sizes browsers actually use as a tab icon get a
 // variant (see the favicon-16/32/64 ids above); the 256px one is
 // install-time-fixed (apple-touch-icon/manifest) and can't change at
@@ -123,6 +126,15 @@ const NOW_PLAYING_POLL_MS = 15000; // how often to re-fetch now-playing metadata
 // real failure of the new one, so we ignore it.
 const STALE_EVENT_GRACE_MS = 300;
 
+const NOT_FOUND_DISPLAY_MS = 600; // how long "Not Found" is shown before the seek continues to the next station
+
+// A station that was actually confirmed live gets this many tries to
+// reconnect on its own URL (each a full CORS-then-no-CORS attempt, like a
+// fresh tune) before it's treated as dead and the seek moves on — see
+// stationWasLive/reconnectAttempt below and handleStreamFailure().
+const MAX_RECONNECT_ATTEMPTS = 3;
+const RECONNECT_RETRY_DELAY_MS = 3000; // gap between reconnect attempts
+
 let visualizerBars = [];
 let visualizerFrame = null;
 let visualizerMode = "idle"; // "idle" | "seeking" | "probing" | "real" | "fake"
@@ -137,6 +149,10 @@ let freqData = null;
 let usingCors = true;
 let currentLoadController = null; // detaches the previous load's listeners the instant a new one starts
 let connectTimeoutId = null;
+let reconnectTimeoutId = null; // pending retry of a station that was live and just dropped — see handleStreamFailure()
+let notFoundTimeoutId = null; // pending advanceSeek() after a brief "Not Found" — see handleStreamFailure()
+let stationWasLive = false; // has the CURRENT station fired "playing" since it was last freshly tuned to? — distinguishes a signal drop (try to reconnect) from a station that never connected in the first place (just not found)
+let reconnectAttempt = 0; // consecutive failed reconnect tries for the current (previously-live) station — see MAX_RECONNECT_ATTEMPTS
 let loadStartedAt = 0;
 let stationAttemptStartedAt = 0; // when this station's attempt began (both the CORS try and its no-CORS retry share this budget — see CONNECT_TIMEOUT_MS)
 let nowPlayingPollTimeoutId = null;
@@ -254,6 +270,15 @@ function bindEvents() {
   // can go straight from hidden to visible without a visibilitychange event
   // firing on the way back in.
   window.addEventListener("pageshow", resyncMediaSession);
+
+  // Doesn't auto-resume playback — calling audio.play() from a background
+  // event handler (not a real user gesture) risks a silent autoplay block.
+  // Just clears the stale "Offline" status so the UI stops claiming no
+  // network once there is one again; a manual press of Play is guaranteed to
+  // actually work.
+  window.addEventListener("online", () => {
+    if (state.status === "offline") setStatus("idle");
+  });
 
   els.themeButtons.forEach((btn) => {
     btn.addEventListener("click", () => setTheme(btn.dataset.themeChoice));
@@ -891,6 +916,12 @@ function play() {
 // already in progress, without resetting where "a full lap" started.
 function beginSeeking(startIndex, direction) {
   state.everPlayed = true;
+  // No network at all — don't bother cycling through every station one by
+  // one just to watch each one fail; that's just noise. See #18.
+  if (!navigator.onLine) {
+    goOffline();
+    return;
+  }
   seekStartIndex = startIndex;
   seekDirection = direction;
   tuneToStation(startIndex);
@@ -903,6 +934,11 @@ function tuneToStation(index) {
   state.currentIndex = index;
   localStorage.setItem(STORAGE_KEYS.index, String(index));
   updateUrl();
+
+  // Fresh station, fresh trust — any reconnect budget belongs to whatever
+  // station actually managed to connect, not a hand-me-down from the last one.
+  stationWasLive = false;
+  reconnectAttempt = 0;
 
   // Most stations get a real shot at CORS (for actual spectrum analysis),
   // falling back to a plain load if that fails (see handleStreamFailure()).
@@ -935,6 +971,8 @@ function loadStream(url) {
   // behind "errors when I press next/prev while a station is still loading").
   currentLoadController?.abort();
   clearTimeout(connectTimeoutId);
+  clearTimeout(reconnectTimeoutId); // a pending retry of whatever this load is superseding must never fire later and clobber it
+  clearTimeout(notFoundTimeoutId); // ditto for a pending "Not Found" auto-advance
   stopNowPlaying(); // clear any previous station's now-playing text immediately, don't wait for the new one
   audioConfirmedPlaying = false;
 
@@ -948,10 +986,14 @@ function loadStream(url) {
   activeAudio.src = url;
   activeAudio.load();
 
-  activeAudio.addEventListener("waiting", () => setStatus("seeking"), { signal });
+  // "Signal Lost" instead of "Seeking" if this is a station that was already
+  // live and is now just buffering through a reconnect attempt.
+  activeAudio.addEventListener("waiting", () => setStatus(stationWasLive ? "reconnecting" : "seeking"), { signal });
   activeAudio.addEventListener("playing", () => {
     clearTimeout(connectTimeoutId);
     audioConfirmedPlaying = true;
+    stationWasLive = true;
+    reconnectAttempt = 0; // recovered — a future drop gets a full fresh set of reconnect tries
     setStatus("playing");
     startNowPlaying(state.stations[state.currentIndex]);
   }, { signal });
@@ -986,15 +1028,53 @@ function handleStreamFailure(url, { skipStaleCheck = false } = {}) {
     loadStream(url);
     return;
   }
-  // Genuinely dead (both CORS and no-CORS attempts failed) — this station is
-  // off the air, so keep seeking rather than just erroring out.
-  advanceSeek();
+
+  // Both CORS and no-CORS attempts failed for this connection attempt.
+  if (stationWasLive) {
+    if (reconnectAttempt < MAX_RECONNECT_ATTEMPTS) {
+      // This station was genuinely live moments ago — assume it's a blip,
+      // not off the air, and try again on the same URL rather than
+      // immediately abandoning it for the next station. See #22.
+      reconnectAttempt++;
+      usingCors = !state.stations[state.currentIndex]?.noCors;
+      setStatus("reconnecting");
+      clearTimeout(reconnectTimeoutId);
+      reconnectTimeoutId = setTimeout(() => {
+        // Reset the silent-hang backstop's budget (see CONNECT_TIMEOUT_MS in
+        // loadStream()) — without this it stays anchored to when the station
+        // was ORIGINALLY tuned in, long before it dropped, so remainingBudget
+        // computes to ~0 and every reconnect attempt would time out instantly.
+        stationAttemptStartedAt = Date.now();
+        loadStream(url);
+      }, RECONNECT_RETRY_DELAY_MS);
+      return;
+    }
+    // Every reconnect attempt failed — it's dead now too. Resume seeking
+    // onward from here (no "Not Found" blip for this one: it WAS found, it
+    // just couldn't stay connected) as a brand new lap, so a dead dial from
+    // here doesn't fall back on some earlier, long-stale seekStartIndex.
+    stationWasLive = false;
+    seekStartIndex = state.currentIndex;
+    seekDirection = 1;
+    advanceSeek();
+    return;
+  }
+
+  // Never connected in the first place — genuinely off the air. Say so
+  // briefly, then keep seeking rather than just erroring out.
+  setStatus("notfound");
+  clearTimeout(notFoundTimeoutId);
+  notFoundTimeoutId = setTimeout(advanceSeek, NOT_FOUND_DISPLAY_MS);
 }
 
 // Tries the next station in `seekDirection`. If that would be the very
 // station this seek started from, we've made a full lap and nothing on the
 // dial is live — land back there and give up rather than looping forever.
 function advanceSeek() {
+  if (!navigator.onLine) {
+    goOffline();
+    return;
+  }
   const nextIndex = (state.currentIndex + seekDirection + state.stations.length) % state.stations.length;
   if (nextIndex === seekStartIndex) {
     giveUpSeeking(nextIndex);
@@ -1007,21 +1087,42 @@ function giveUpSeeking(index) {
   currentLoadController?.abort();
   currentLoadController = null;
   clearTimeout(connectTimeoutId);
+  clearTimeout(reconnectTimeoutId);
+  clearTimeout(notFoundTimeoutId);
   stopNowPlaying();
   state.currentIndex = index;
   localStorage.setItem(STORAGE_KEYS.index, String(index));
   updateUrl();
   state.playing = false;
+  stationWasLive = false;
   resetAudioElement(activeAudio);
   setStatus("error");
+}
+
+// The device itself has no network — parked wherever we are, no station
+// index change, nothing to "give up" on (see beginSeeking()/advanceSeek()).
+function goOffline() {
+  currentLoadController?.abort();
+  currentLoadController = null;
+  clearTimeout(connectTimeoutId);
+  clearTimeout(reconnectTimeoutId);
+  clearTimeout(notFoundTimeoutId);
+  stopNowPlaying();
+  state.playing = false;
+  stationWasLive = false;
+  resetAudioElement(activeAudio);
+  setStatus("offline");
 }
 
 function stop() {
   currentLoadController?.abort();
   currentLoadController = null;
   clearTimeout(connectTimeoutId);
+  clearTimeout(reconnectTimeoutId);
+  clearTimeout(notFoundTimeoutId);
   stopNowPlaying();
   state.playing = false;
+  stationWasLive = false;
   resetAudioElement(activeAudio);
   setStatus("idle");
 }
@@ -1087,7 +1188,11 @@ function render() {
   document.body.dataset.status = state.status;
 
   els.btnPlay.classList.toggle("btn--accent", state.playing);
-  els.btnPlay.setAttribute("aria-label", state.playing ? "Stop" : "Play");
+  // Fully given up (dead dial, or no network) — make it explicit that this
+  // same button is the obvious way to try again, not just "Play" as if
+  // nothing happened. See #22.
+  const isRecoverable = state.status === "error" || state.status === "offline";
+  els.btnPlay.setAttribute("aria-label", state.playing ? "Stop" : isRecoverable ? "Retry" : "Play");
 
   [els.btnPlay, els.btnPrev, els.btnRandom, els.btnNext, els.stationSelect].forEach((btn) => {
     btn.disabled = !hasStations;
@@ -1120,7 +1225,7 @@ function updateFavicon() {
 function updateDocumentTitle(station) {
   if (state.status === "playing" && station) {
     document.title = `${station.title} — ${BASE_TITLE}`;
-  } else if (state.status === "seeking" || state.status === "error") {
+  } else if (state.status !== "idle") {
     document.title = `${STATUS_LABELS[state.status]} — ${BASE_TITLE}`;
   } else {
     document.title = BASE_TITLE;
