@@ -563,8 +563,8 @@ body[data-status="reconnecting"] .display__live-indicator {
 
 /* Copy URL: the same bordered icon + label at every width. */
 .btn--copy {
-  height: var(--icon-box);
-  padding: var(--space-sm) var(--space-zero) var(--space-sm) var(--space-sm) ;
+  height: 24px;
+  padding: var(--space-base) var(--space-sm) var(--space-base) var(--space-base) ;
   gap: var(--space-zero);
 }
 
