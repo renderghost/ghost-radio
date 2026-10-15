@@ -14,6 +14,7 @@
   { "title": "KXLU FM", "slug": "kxlu", "streamUrl": "https://kxlu.streamguys1.com/kxlu-hi", "location": "Los Angeles, USA" },
   { "title": "Modular", "slug": "modular", "streamUrl": "https://broadcast.modular-station.com/listen/modular_station/radio.aac", "location": "Paris, France", "nowPlaying": { "type": "azuracast", "apiUrl": "https://broadcast.modular-station.com/api/nowplaying/modular_station" } },
   { "title": "Noods Radio", "slug": "noods", "streamUrl": "https://noods-radio.radiocult.fm/stream", "location": "Bristol, UK" },
+  { "title": "NTS", "slug": "nts", "streamUrl": "https://audio-edge-jfbmv.sin.d.radiomast.io/nts1", "location": "London, UK" },
   { "title": "Radio 80000", "slug": "80000", "streamUrl": "https://radio80k.out.airtime.pro/radio80k_a", "location": "Munich, Germany", "nowPlaying": { "type": "airtime", "slug": "radio80k" } },
   { "title": "Radio Alhara", "slug": "alhara", "streamUrl": "https://stream.radioalhara.net/ra", "location": "Bethlehem, Palestine", "nowPlaying": { "type": "alhara" } },
   { "title": "Radio Worm", "slug": "worm", "streamUrl": "https://origin.streamnerd.nl/worm/worm/icecast.audio", "location": "Rotterdam, Netherlands" },
