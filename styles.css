@@ -441,6 +441,8 @@ body[data-status="reconnecting"] .display__live-indicator {
   overflow-x: clip;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* thumb, then track: thumb matches the item hover fill, track matches the item fill */
+  scrollbar-color: var(--button-bg-display-hover) var(--button-bg-display);
   background: var(--button-bg-display);
   border-radius: var(--radius-sm);
 }
